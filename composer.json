@@ -1,0 +1,21 @@
+{
+    "name": "kingsoft/persist-db",
+    "description": "Implementation of IPersist for datbases",
+    "type": "library",
+    "require": {
+        "kingsoft/persist": "^1.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Kingsoft\\Persist\\Db\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "theking2",
+            "email": "theking2@king.ma"
+        }
+    ],
+    "minimum-stability": "RC"
+}

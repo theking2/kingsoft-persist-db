@@ -1,0 +1,56 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3329f39b0184fd33e87eb8feed211a6c",
+    "packages": [
+        {
+            "name": "kingsoft/persist",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/theking2/persist.git",
+                "reference": "95a1f48c024f124d9f0accc0d482611a8cc2f9f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/theking2/persist/zipball/95a1f48c024f124d9f0accc0d482611a8cc2f9f5",
+                "reference": "95a1f48c024f124d9f0accc0d482611a8cc2f9f5",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Kingsoft\\Persist\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "theking2",
+                    "email": "theking2@king.ma"
+                }
+            ],
+            "description": "Object Persistance",
+            "support": {
+                "issues": "https://github.com/theking2/persist/issues",
+                "source": "https://github.com/theking2/persist/tree/1.0.0"
+            },
+            "time": "2023-03-31T08:59:15+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "RC",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}
