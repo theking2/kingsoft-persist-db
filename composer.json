@@ -3,7 +3,8 @@
     "description": "Implementation of IPersist for datbases",
     "type": "library",
     "require": {
-        "kingsoft/persist": "^1.0"
+        "kingsoft/persist": "^1.0",
+        "kingsoft/db": "^1.0"
     },
     "license": "MIT",
     "autoload": {
