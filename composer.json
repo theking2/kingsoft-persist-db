@@ -1,6 +1,6 @@
 {
     "name": "kingsoft/persist-db",
-    "description": "Implementation of IPersist for datbases",
+    "description": "Implementation of IPersist for databases",
     "type": "library",
     "require": {
         "kingsoft/persist": "^1.0",
