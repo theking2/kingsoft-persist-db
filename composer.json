@@ -14,5 +14,6 @@
             "email": "theking2@king.ma"
         }
     ],
-    "minimum-stability": "RC"
+    "minimum-stability": "RC",
+    "require": {}
 }
