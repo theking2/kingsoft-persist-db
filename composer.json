@@ -2,10 +2,6 @@
     "name": "kingsoft/persist-db",
     "description": "Implementation of IPersist for databases",
     "type": "library",
-    "require": {
-        "kingsoft/persist": "^1.0",
-        "kingsoft/db": "^1.1.2"
-    },
     "license": "MIT",
     "autoload": {
         "psr-4": {
