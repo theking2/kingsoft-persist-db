@@ -210,7 +210,7 @@ trait DBPersistTrait
 	 * @throws DatabaseException
 	 * @return object
 	 */
-	public function thaw( mixed $id ): ?\Persist\IPersist
+	public function thaw( mixed $id ): null|\Kingsoft\Persist\IPersist
 	{
     $query = sprintf
       ( 'select %s from %s where `%s` = :ID'
@@ -342,9 +342,9 @@ trait DBPersistTrait
 	 * find – find records in the database
 
 	 * @throws DatabaseException
-	 * @return object
+	 * @return null|object
 	 */
-	public static function find(?array $where = [], ?array $order = []): ?static
+	public static function find(?array $where = [], ?array $order = []): null|static
 	{
 		$obj = new static(where: $where, order: $order);
 		$obj->findFirst();
@@ -500,9 +500,9 @@ trait DBPersistTrait
 	 * * ^	bitwise xor
 	 * * ~	IN value array
 	 * @param  mixed $where
-	 * @return \Persist\Base
+	 * @return \Kingsoft\Persist\Base
 	 */
-	public function setWhere(array $where): object
+	public function setWhere(array $where): \Kingsoft\Persist\Base
 	{
 		$this->_where = $where;
 		return $this;
@@ -562,7 +562,7 @@ trait DBPersistTrait
 	/**
 	 * Bind the set values to the statement
 	 * 
-	 * @param PDOStatement $stmt - 
+	 * @param \PDOStatement $stmt - 
 	 * @return bool
 	 */
 	private function bindWhere( \PDOStatement $stmt ): bool
