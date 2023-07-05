@@ -2,7 +2,7 @@
 
 require_once '../inc/util.php';
 if(!defined('_NAMESPACE')) {
-  define('_NAMESPACE', 'NeueMedien');
+  define('_NAMESPACE', 'Kingsoft');
 }
 
 /**

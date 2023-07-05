@@ -10,7 +10,10 @@
     "autoload": {
         "psr-4": {
             "Kingsoft\\Persist\\Db\\": "src/"
-        }
+        },
+        "files": [
+            "src/discover/index.php"
+        ]
     },
     "authors": [
         {
