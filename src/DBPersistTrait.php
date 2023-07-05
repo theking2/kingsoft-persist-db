@@ -191,7 +191,7 @@ trait DBPersistTrait
 	/* #region CRUD */
 
 	/**
-	 * create – create a new record in the database or update an existing one
+	 * create – create a new record in the \Kingsoft\Db\Database or update an existing one
 	 * @return bool
 	 */
 	public function freeze():bool
@@ -203,11 +203,11 @@ trait DBPersistTrait
 	}
 
 	/**
-	 * thaw – fetch a record from the database by key
+	 * thaw – fetch a record from the \Kingsoft\Db\Database by key
 	 * this assumes keys are singel and ints!!
 	 *
 	 * @param  int $id
-	 * @throws DatabaseException
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return object
 	 */
 	public function thaw( mixed $id ): null|\Kingsoft\Persist\IPersist
@@ -220,13 +220,13 @@ trait DBPersistTrait
 		);
 
 		try {
-			$stmt = Database::getConnection()->prepare($query);
+			$stmt = \Kingsoft\Db\Database::getConnection()->prepare($query);
 			if( !$stmt ) {
-				throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
+				throw \Kingsoft\Db\DatabaseException::createStatementException( \Kingsoft\Db\Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
 			}
 
 			if( !$stmt-> execute([':ID'=>$id]) ) {
-				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
+				throw \Kingsoft\Db\DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
 			}
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
@@ -255,15 +255,15 @@ trait DBPersistTrait
 				$this->getTableName(),
 				$errorInfo[2]
 			);
-			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
+			throw new \Kingsoft\Db\DatabaseException( \Kingsoft\Db\DatabaseException::ERR_STATEMENT, $e, $message );
 		}
 	}
 
 	/**
-	 * Insert a new record in the database
+	 * Insert a new record in the \Kingsoft\Db\Database
 	 * NOTE: This is not thread save as between the execute and lastInsertId another
 	 * sql statement could occur yielding the wrong ID to be set.
-	 * @throws DatabaseException
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return bool
 	 */
 	protected function insert(): bool
@@ -274,19 +274,19 @@ trait DBPersistTrait
 				$this-> _dirty = [];
 				return true;
 			} else {
-				throw DatabaseException::createExecutionException(
+				throw \Kingsoft\Db\DatabaseException::createExecutionException(
 					$this->insert_statement, "Could not insert in {$this->getTableName()}:%s" );
 			}
 
 		} catch( \PDOException $e ) {
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this->insert_statement, "Could not insert in {$this->getTableName()}:%s)"
 			);
 		}
 	}
 	/**
-	 * Synchronize changes in Database
-	 * @throws DatabaseException
+	 * Synchronize changes in \Kingsoft\Db\Database
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return bool
 	 */
 	protected function update(): bool
@@ -298,12 +298,12 @@ trait DBPersistTrait
 				return true;
 			}
 
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 
 		} catch( \PDOException $e ) {
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 		}
@@ -312,7 +312,7 @@ trait DBPersistTrait
 	 * Datensatz $this->ID aus der Tabelle entfernen
 	 * If $constraint is set than use this to select the records to delete
 	 * If $constraint is not set than delete thre record by ID
-	 * @throws DatabaseException
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return bool
 	 */
 	public function delete(): bool
@@ -324,12 +324,12 @@ trait DBPersistTrait
 				$this->{$this-> getPrimaryKey()} = 0;
 				return true;
 			}
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this-> delete_statement, "Could not delete {$this->getTableName()}:%s"
 			);
 
 		} catch( \PDOException $e ) {
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this-> delete_statement, "Could not delete from {self->getTableName()}:%s"
 			);
 		}
@@ -339,9 +339,9 @@ trait DBPersistTrait
 	/* #region Traversal */
 
 	/**
-	 * find – find records in the database
+	 * find – find records in the \Kingsoft\Db\Database
 
-	 * @throws DatabaseException
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return null|object
 	 */
 	public static function find(?array $where = [], ?array $order = []): null|static
@@ -365,10 +365,10 @@ trait DBPersistTrait
 	private ?\PDOStatement $current_statement = null;
 
 	/**
-	 * findFirst – find the first record in the database
+	 * findFirst – find the first record in the \Kingsoft\Db\Database
 	 * @uses _where
 	 * @uses _order
-	 * @throws DatabaseException
+	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return void
 	 */
 	function findFirst()
@@ -381,20 +381,20 @@ trait DBPersistTrait
 		$query .= $this->getWhere();
 		$query .= $this->getOrderBy();
 		try {
-			if( !$stmt = Database::getConnection()-> prepare($query) ) {
-				throw DatabaseException::createStatementException(
+			if( !$stmt = \Kingsoft\Db\Database::getConnection()-> prepare($query) ) {
+				throw \Kingsoft\Db\DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare statement for {$this->getTableName()}:%s"
 				);
 			}
 			if( !$this-> bindWhere($stmt) ) {
-				throw DatabaseException::createExecutionException(
+				throw \Kingsoft\Db\DatabaseException::createExecutionException(
 					$stmt, "Could not bind where in {$this->getTableName()}:%s"
 				);
 			}
 
 
 			if( !$stmt-> execute() ) {
-				throw DatabaseException::createExecutionException( $stmt, "Could not execute statement for {$this->getTableName()}:%s" );
+				throw \Kingsoft\Db\DatabaseException::createExecutionException( $stmt, "Could not execute statement for {$this->getTableName()}:%s" );
 			}
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
@@ -412,7 +412,7 @@ trait DBPersistTrait
 				$this->getTableName(),
 				$errorInfo[2]
 			);
-			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
+			throw new \Kingsoft\Db\DatabaseException( \Kingsoft\Db\DatabaseException::ERR_STATEMENT, $e, $message );
 		}
 	}
 	/**
@@ -431,16 +431,16 @@ trait DBPersistTrait
 				return false;
 			}
 		} catch( \PDOException $e ) {
-			throw DatabaseException::createExecutionException(
+			throw \Kingsoft\Db\DatabaseException::createExecutionException(
 				$this-> current_statement, "Could not find next in {$this-> getTableName()}:%s"
 			);
 		}
 	}
 	
 	/**
-	 * Generator findAll() – find all records in the database
+	 * Generator findAll() – find all records in the \Kingsoft\Db\Database
 	 * @return \Generator 
-	 * @throws DatabaseException 
+	 * @throws \Kingsoft\Db\DatabaseException 
 	 */
 	public static function findAll( ?array $where =[], ?array $order=[] ): \Generator
 	{
@@ -604,13 +604,13 @@ trait DBPersistTrait
 				static::getFieldPlaceholders( false )
 			);
 
-			$this-> insert_statement = Database::getConnection()-> prepare( $query );
+			$this-> insert_statement = \Kingsoft\Db\Database::getConnection()-> prepare( $query );
 			if( !$this->insert_statement ) {
-				throw DatabaseException::createStatementException(
+				throw \Kingsoft\Db\DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare insert statement for {$this->getTableName()}:%s" );
 			}
 			if( !$this-> bindValueList( $this-> insert_statement, true ) ) {
-				throw DatabaseException::createStatementException(
+				throw \Kingsoft\Db\DatabaseException::createStatementException(
 					Database::getConnection(), "Could not bind insert statement for {$this->getTableName()}:%s" );
 			}
 		}
@@ -632,18 +632,18 @@ trait DBPersistTrait
 			static::getPrimaryKey()
 		);
 
-		$result = Database::getConnection( )-> prepare( $query );
+		$result = \Kingsoft\Db\Database::getConnection( )-> prepare( $query );
 		if( !$result ) {
-			throw DatabaseException::createStatementException(
+			throw \Kingsoft\Db\DatabaseException::createStatementException(
 				Database::getConnection(), "Could not prepare update statement for {$this->getTableName()}:%s"
 			);
 		}
 		if( !$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey()} ) ) {
-			throw DatabaseException::createStatementException(
+			throw \Kingsoft\Db\DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind ID to update statement for {$this->getTableName()}:%s" );
 		}
 		if( !$this-> bindValueList( $result, false ) ) {
-			throw DatabaseException::createStatementException(
+			throw \Kingsoft\Db\DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind update statement for {$this->getTableName()}:%s"
 			);
 		}
@@ -666,14 +666,14 @@ trait DBPersistTrait
 				static::getTableName(),
 				static::getPrimaryKey()
 			);
-			$this-> delete_statement = Database::getConnection()-> prepare( $query );
+			$this-> delete_statement = \Kingsoft\Db\Database::getConnection()-> prepare( $query );
 			if( !$this-> delete_statement ) {
-				throw DatabaseException::createStatementException(
+				throw \Kingsoft\Db\DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare delete statement {$this->getTableName()}:%s"
 				);
 			}
 			if( !$this-> delete_statement->bindParam( ':ID', $this->{$this-> getPrimaryKey()}) ) {
-				throw DatabaseException::createStatementException(
+				throw \Kingsoft\Db\DatabaseException::createStatementException(
 					Database::getConnection(), "Could not bind ID to delete statement {$this->getTableName()}:%s"
 				);
 			}
