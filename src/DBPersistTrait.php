@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Kingsoft\Persist\DB;
+namespace Kingsoft\Persist\Db;
 
 trait DBPersistTrait
 {
