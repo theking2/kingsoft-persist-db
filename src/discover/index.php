@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-require_once '../inc/util.php';
+require __DIR__.'/../../../utils/all.php';
+require_once __DIR__.'/../../../../autoload.php';
 if(!defined('_NAMESPACE')) {
-  define('_NAMESPACE', 'Kingsoft');
+  define('_NAMESPACE', ucfirst(SETTINGS['api']['namespace']));
 }
 
+use \Kingsoft\Utils as Utils;
+use \Kingsoft\Db;
 /**
  * Map SQL domains to php types
  */
@@ -17,7 +20,7 @@ $type_list = [
   '\DateTime'=> [ 'datetime' ],
 ];
 
-$db = \DB\Database::getConnection();
+$db = Database::getConnection();
 
 $sql ="show tables";
 $table_stat = $db-> prepare($sql);
@@ -25,8 +28,10 @@ $table_stat-> execute();
 
 $table_stat-> bindColumn(1, $table_name);
 
+$all_tables = [];
 while( $table_stat->fetch() ) {
-  echo wrap_tag('h1',$table_name);
+  $all_tables[] = ucfirst($table_name);
+  echo Utils\wrap_tag('h1',$table_name);
 
   $sql = "show columns from `$table_name`";
   $cols_stat = $db-> prepare( $sql );
@@ -51,10 +56,10 @@ while( $table_stat->fetch() ) {
       }
     }
   }
-  echo wrap_tag('p', "key: $keyname" );
+  echo Utils\wrap_tag('p', "key: $keyname" );
   echo '<ul>';
   foreach( $cols as $fieldName=> $fieldDescription ) {
-    echo wrap_tag('li', $fieldName );
+    echo Utils\wrap_tag('li', $fieldName );
   }
   echo '</ul>';
   $fh = fopen("./src/$table_name.php", 'w');
@@ -75,9 +80,9 @@ while( $table_stat->fetch() ) {
 
   fwrite( $fh, " */\n");
  
-  fprintf( $fh, "final class %s\n\textends \\Persist\\Base\n", $table_name );
-  fwrite( $fh, "\timplements \\Persist\\IPersist\n{\n", );
-  fwrite( $fh, "\tuse \\DB\\DBPersistTrait;\n\n" );
+  fprintf( $fh, "final class %s\n\textends \\Kingsoft\\Persist\\Base\n", ucfirst($table_name) );
+  fwrite( $fh, "\timplements \\Kingsoft\\Persist\\IPersist\n{\n", );
+  fwrite( $fh, "\tuse \\Kingsoft\Persist\Db\\DBPersistTrait;\n\n" );
 
   // Set the datatype for Date and DateTime to PHP \DateTime
   foreach( $cols as $fieldName=> $fieldDescription ) {
@@ -99,4 +104,13 @@ while( $table_stat->fetch() ) {
   };
   fwrite( $fh, "\t\t];\n\t}\n}" );
   fclose( $fh );
+
 }
+
+echo '<hr>';
+echo '<h2>Table List</h2>';
+echo '<pre>';
+  array_walk( $all_tables, function($table_name) {
+    echo "allowedendpoints[] = ". $table_name.PHP_EOL; 
+  });
+echo '</pre>';
