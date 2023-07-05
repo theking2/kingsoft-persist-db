@@ -7,7 +7,6 @@ if(!defined('_NAMESPACE')) {
 }
 
 use \Kingsoft\Utils as Utils;
-use \Kingsoft\Db;
 /**
  * Map SQL domains to php types
  */
@@ -20,7 +19,7 @@ $type_list = [
   '\DateTime'=> [ 'datetime' ],
 ];
 
-$db = Database::getConnection();
+$db = \Kingsoft\Db\Database::getConnection();
 
 $sql ="show tables";
 $table_stat = $db-> prepare($sql);
