@@ -61,7 +61,9 @@ while( $table_stat->fetch() ) {
     echo Utils\wrap_tag('li', $fieldName );
   }
   echo '</ul>';
-  $fh = fopen("./src/$table_name.php", 'w');
+  //Make filename PSR-4 compliant
+  $file_name = "./src/".ucfirst($table_name). ".php";
+  $fh = fopen($file_name, 'w');
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
   fprintf( $fh, "namespace %s;\n\n", _NAMESPACE );
