@@ -107,9 +107,22 @@ while( $table_stat->fetch() ) {
 }
 
 echo '<hr>';
-echo '<h2>Table List</h2>';
+echo '<h2>Settings [api]</h2>';
 echo '<pre>';
   array_walk( $all_tables, function($table_name) {
     echo "allowedendpoints[] = ". $table_name.PHP_EOL; 
   });
 echo '</pre>';
+echo '<hr>';
+echo '<h2>composer.json</h2>';
+echo '<pre>';
+echo '
+  "autoload": {
+    "psr-4": {
+      '._NAMESPACE.': "vendor/kingsoft/persist-db/src/discover/src"
+    }
+  });
+';
+echo '</pre>';
+
+
