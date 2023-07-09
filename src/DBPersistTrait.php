@@ -506,6 +506,11 @@ trait DBPersistTrait
 	 */
 	public function setWhere(array $where): \Kingsoft\Persist\Base
 	{
+		array_walk($where, function ($value, $key) {
+			if (!$this->_isField($key)) {
+				throw new \InvalidArgumentException(sprintf('Field %s does not exist in %s', $key, $this->getTableName()));
+			}
+		});
 		$this->_where = $where;
 		return $this;
 	}
