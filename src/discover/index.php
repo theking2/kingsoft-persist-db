@@ -62,7 +62,8 @@ while( $table_stat->fetch() ) {
   }
   echo '</ul>';
   //Make filename PSR-4 compliant
-  $file_name = "./src/".ucfirst($table_name). ".php";
+  $class_name = \Kingsoft\Utils\snakeToPascal($table_name);
+  $file_name = "./src/".$class_name. ".php";
   $fh = fopen($file_name, 'w');
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
@@ -81,7 +82,7 @@ while( $table_stat->fetch() ) {
 
   fwrite( $fh, " */\n");
  
-  fprintf( $fh, "final class %s\n\textends \\Kingsoft\\Persist\\Base\n", ucfirst($table_name) );
+  fprintf( $fh, "final class %s\n\textends \\Kingsoft\\Persist\\Base\n", $class_name );
   fwrite( $fh, "\timplements \\Kingsoft\\Persist\\IPersist\n{\n", );
   fwrite( $fh, "\tuse \\Kingsoft\Persist\Db\\DBPersistTrait;\n\n" );
 
