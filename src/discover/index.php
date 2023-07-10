@@ -29,8 +29,12 @@ $table_stat-> bindColumn(1, $table_name);
 
 $all_tables = [];
 while( $table_stat->fetch() ) {
-  $all_tables[] = ucfirst($table_name);
-  echo Utils\wrap_tag('h1',$table_name);
+  //Make filename PSR-4 compliant
+  $class_name = \Kingsoft\Utils\snakeToPascal($table_name);
+  $file_name = "./src/".$class_name. ".php";
+  $all_tables[] =$class_name;
+
+  echo Utils\wrap_tag('h1',$class_name);
 
   $sql = "show columns from `$table_name`";
   $cols_stat = $db-> prepare( $sql );
@@ -61,9 +65,6 @@ while( $table_stat->fetch() ) {
     echo Utils\wrap_tag('li', $fieldName );
   }
   echo '</ul>';
-  //Make filename PSR-4 compliant
-  $class_name = \Kingsoft\Utils\snakeToPascal($table_name);
-  $file_name = "./src/".$class_name. ".php";
   $fh = fopen($file_name, 'w');
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
