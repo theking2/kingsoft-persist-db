@@ -14,14 +14,5 @@
             "email": "theking2@king.ma"
         }
     ],
-    "minimum-stability": "RC",
-    "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/theking2/kingsoft-utils.git"
-    },    
-    "require": {
-        "php": ">=8.1.0",
-        "kingsoft/utils":"dev-main"        
-    }
+    "minimum-stability": "RC"
 }
