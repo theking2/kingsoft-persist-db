@@ -1,6 +1,6 @@
 {
     "name": "kingsoft/persist-db",
-    "description": "Implementation of IPersist for databases",
+    "description": "Implementation of Kingsoft/IPersist for databases using Kingsoft/Database as a backend.",
     "type": "library",
     "license": "MIT",
     "autoload": {
