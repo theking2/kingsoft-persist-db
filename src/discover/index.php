@@ -123,7 +123,7 @@ echo '<pre>';
 echo '
   "autoload": {
     "psr-4": {
-      '._NAMESPACE.': "vendor/kingsoft/persist-db/src/discover/src"
+      '._NAMESPACE.'\\: "vendor/kingsoft/persist-db/src/discover/src"
     }
   });
 ';
