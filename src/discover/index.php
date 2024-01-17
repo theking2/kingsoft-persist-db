@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-require $_SERVER['DOCUMENT_ROOT'] . '/vendor/kingsot/utils/session.inc.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/vendor/kingsoft/utils/session.inc.php';
 require ROOT . 'vendor/autoload.php';
 
 if( !defined( '_NAMESPACE' ) ) {
