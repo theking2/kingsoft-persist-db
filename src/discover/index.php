@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 if( !defined( 'ROOT' ) )
-  define( 'ROOT', $_SERVER[ 'DOCUMENT_ROOT' . '/.' ] );
+  define( 'ROOT', $_SERVER['DOCUMENT_ROOT'] . '/.' );
 
 require ROOT . 'vendor/autoload.php';
 
