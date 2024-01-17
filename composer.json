@@ -17,6 +17,6 @@
     "minimum-stability": "RC",
     "require": {
         "php": ">=8.2",
-        "kingsoft/utils": "*"
+        "kingsoft/utils": ">=2.6.1"
     }
 }
