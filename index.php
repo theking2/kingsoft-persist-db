@@ -1,10 +1,15 @@
 <?php declare(strict_types=1);
+define( 'SETTINGS_FILE', $_SERVER['DOCUMENT_ROOT'] . '/config/settings.ini' );
+
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/kingsoft/utils/settings.inc.php';
 require ROOT . 'vendor/autoload.php';
 
 if( !defined( '_NAMESPACE' ) ) {
   define( '_NAMESPACE', ucfirst( SETTINGS['api']['namespace'] ) );
 }
+define( 'DISCOVERED_CLASSFOLDER', ROOT . 'discovered/' . _NAMESPACE . '/' );
+if( !is_dir( DISCOVERED_CLASSFOLDER ) )
+  mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
 
 use \Kingsoft\Utils\Html as Html;
 use \Kingsoft\Utils\Format as Format;
@@ -33,7 +38,7 @@ $all_tables = [];
 while( $table_stat->fetch() ) {
   //Make filename PSR-4 compliant
   $class_name   = Format::snakeToPascal( $table_name );
-  $file_name    = "./src/" . $class_name . ".php";
+  $file_name    = DISCOVERED_CLASSFOLDER . $class_name . ".php";
   $all_tables[] = $class_name;
 
   echo Html::wrap_tag( 'h1', $class_name );
@@ -128,7 +133,7 @@ echo '<pre>';
 echo '
   "autoload": {
     "psr-4": {
-      "' . _NAMESPACE . '\\\\": "vendor/kingsoft/persist-db/src/discover/src"
+      "' . _NAMESPACE . '\\\\": "' . DISCOVERED_CLASSFOLDER . '"
     }
   }
 ';
