@@ -1,5 +1,5 @@
 # DB implementation of Persist
-This implementation of the abstract [`Persist/Base`](https://github.com/theking2/kingsoft-persist) uses a `Db` connection to make tables in the database available as persistent PHP objects. For each table an PHP object is availabl implementing keys and values.
+This implementation of the abstract [`Persist/Base`](https://github.com/theking2/kingsoft-persist) uses a [`Db`](https://github.com/theking2/kingsoft-db) connection to make tables in the database available as persistent PHP objects. For each table an PHP object is availabl implementing keys and values.
 
 ## Setup
 To create the PHP proxies to the tables and views use
