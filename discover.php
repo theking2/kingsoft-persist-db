@@ -20,7 +20,7 @@ use \Kingsoft\Utils\Format as Format;
 $type_list = [ 
   'int' => [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
   'float' => [ 'float', 'double', 'real' ],
-  'string' => [ 'char', 'varchar', 'text' ],
+  'string' => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum', 'set' ],
   'bool' => [ 'bool', 'boolean' ],
   'Date' => [ 'date' ],
   '\DateTime' => [ 'datetime' ],
