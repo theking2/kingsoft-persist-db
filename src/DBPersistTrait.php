@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 namespace Kingsoft\Persist\Db;
+
 use Kingsoft\Db\Database;
 use Kingsoft\Db\DatabaseException;
 
@@ -8,7 +9,7 @@ trait DBPersistTrait
 	/* #region helpers */
 
 	/** _q - wrap fields in backticks */
-	private static function _q(string $field): string
+	private static function _q( string $field ): string
 	{
 		return '`' . $field . '`';
 	}
@@ -18,9 +19,9 @@ trait DBPersistTrait
 	 * @param  array $fields
 	 * @return string
 	 */
-	static private function wrapFieldArray(array $fields): string
+	static private function wrapFieldArray( array $fields ): string
 	{
-		return static::getTableName() . '.`' . implode('`, ' . self::getTableName() . '.`', $fields) . '`';
+		return static::getTableName() . '.`' . implode( '`, ' . self::getTableName() . '.`', $fields ) . '`';
 	}
 	/**
 	 * getFieldNames - get field names from the parts, great for Iterators
@@ -28,12 +29,13 @@ trait DBPersistTrait
 	 * @param  mixed $withID - include the key
 	 * @return array
 	 */
-	static private function getFieldNames(?bool $withID = true): array
+	static private function getFieldNames( ?bool $withID = true ): array
 	{
-		if( $withID ) return array_keys(static::getFields());
+		if( $withID )
+			return array_keys( static::getFields() );
 
 		$result = [];
-		foreach( array_keys(static::getFields() ) as $field) {
+		foreach( array_keys( static::getFields() ) as $field ) {
 			if( $field != static::getPrimaryKey() ) {
 				$result[] = $field;
 			}
@@ -45,17 +47,18 @@ trait DBPersistTrait
 	 * @param bool $withID - include ID field
 	 * @return string - placeholders
 	 */
-	static private function getFieldPlaceHolders( ?bool $withID = true ):string
+	static private function getFieldPlaceHolders( ?bool $withID = true ): string
 	{
-		if( $withID ) return ":".implode( ',:', self::getFieldNames() );
+		if( $withID )
+			return ":" . implode( ',:', self::getFieldNames() );
 
 		$result = [];
-		foreach( self::getFieldNames($withID) as $fieldname ) {
+		foreach( self::getFieldNames( $withID ) as $fieldname ) {
 			if( $fieldname !== static::getPrimaryKey() ) {
-				$result[] = ':'.$fieldname;
+				$result[] = ':' . $fieldname;
 			}
 		}
-		return implode(',', $result);
+		return implode( ',', $result );
 	}
 	/**
 	 * getFieldList
@@ -63,13 +66,14 @@ trait DBPersistTrait
 	 * @param  mixed $ignore_dirty - if true, only dirty fields are returned
 	 * @return string
 	 */
-	private function getUpdateFieldList( ?bool $ignore_dirty=false ): string
+	private function getUpdateFieldList( ?bool $ignore_dirty = false ): string
 	{
 		$result = [];
-		foreach( static::getFields( ) as $field=> $description ) {
+		foreach( static::getFields() as $field => $description ) {
 			// don't update primary key
-			if( $field === static::getPrimaryKey() ) continue;
-			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
+			if( $field === static::getPrimaryKey() )
+				continue;
+			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
 				$result[] = "`$field` = :$field";
 			}
 		}
@@ -79,9 +83,9 @@ trait DBPersistTrait
 	 * getFieldList return the list with or without PK column
 	 * @param bool $withID - include ID field
 	 */
-	static protected function getSelectFields( ?bool $withID=false ):string
+	static protected function getSelectFields( ?bool $withID = false ): string
 	{
-		return static::wrapFieldArray( static::getFieldNames($withID) );
+		return static::wrapFieldArray( static::getFieldNames( $withID ) );
 	}
 	/**
 	 * bindFieldList
@@ -90,14 +94,15 @@ trait DBPersistTrait
 	 * @param  mixed $ignore_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
-	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
+	private function bindFieldList( \PDOStatement $stmt, ?bool $ignore_dirty = false ): bool
 	{
 		$result = true;
-		foreach( static::getFields( ) as $field=> $description ) {
+		foreach( static::getFields() as $field => $description ) {
 			// don't update primary key
-			if( $field === static::getPrimaryKey() ) continue;
-			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
-				$result = $result && $stmt->bindParam( ':'.$field, $this-> $field );
+			if( $field === static::getPrimaryKey() )
+				continue;
+			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
+				$result = $result && $stmt->bindParam( ':' . $field, $this->$field );
 			}
 		}
 		return $result;
@@ -109,15 +114,16 @@ trait DBPersistTrait
 	 * @param  mixed $ignore_dirty - if true, only dirty fields are bound
 	 * @return void
 	 */
-	private function bindValueList( \PDOStatement $stmt, ?bool $ignore_dirty=false ): bool
+	private function bindValueList( \PDOStatement $stmt, ?bool $ignore_dirty = false ): bool
 	{
-		$result = true;
-		$this-> _insert_buffer = [];
-		foreach( static::getFields( ) as $field=> $description ) {
+		$result                = true;
+		$this->_insert_buffer = [];
+		foreach( static::getFields() as $field => $description ) {
 			// don't update primary key
-			if( $field === static::getPrimaryKey() ) continue;
-			if( $ignore_dirty or in_array( $field, $this-> _dirty ) ) {
-				$result = $result && $stmt->bindValue( ':'.$field, 	$this-> _insert_buffer[] = $this-> getFieldString($field) );
+			if( $field === static::getPrimaryKey() )
+				continue;
+			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
+				$result = $result && $stmt->bindValue( ':' . $field, $this->_insert_buffer[] = $this->getFieldString( $field ) );
 			}
 		}
 		return $result;
@@ -133,42 +139,46 @@ trait DBPersistTrait
 	 * @param  mixed $value
 	 * @return void
 	 */
-	public function __set(string $field, $value): void
+	public function __set( string $field, $value ): void
 	{
-
+		/** check if field exists */
+		if( !$this->_isField( $field ) ) {
+			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
+		}
 		/** convert to DateTime type */
 		$convert_date = function ($value, $format): ?\DateTime {
-			if (is_null($value)) return null;
-			if (gettype($value) === 'string') {
-				if ($d = \DateTime::createFromFormat($format, $value)) {
+			if( is_null( $value ) )
+				return null;
+			if( gettype( $value ) === 'string' ) {
+				if( $d = \DateTime::createFromFormat( $format, $value ) ) {
 					return $d;
 				}
-				throw new \InvalidArgumentException("Invalid date format: $value");
+				throw new \InvalidArgumentException( "Invalid date format: $value" );
 			}
 			// we assume a DateTime here 
 			return $value;
 		};
-		switch ($this->getFields()[$field][0]) {
+		switch($this->getFields()[ $field ][0]) {
 			default:
 				$this->$field = $value;
 				break;
 			case '\DateTime':
-				$this->$field = $convert_date($value, 'Y-m-d H:i:s');
+				$this->$field = $convert_date( $value, 'Y-m-d H:i:s' );
 				break;
 			case 'Date':
-				$this->$field = $convert_date($value, 'Y-m-d');
+				$this->$field = $convert_date( $value, 'Y-m-d' );
 				break;
 			case 'int':
-				$this->$field = (int)$value;
+				$this->$field = (int) $value;
 				break;
 			case 'float':
-				$this->$field = (float)$value;
+				$this->$field = (float) $value;
 				break;
 			case 'bool':
-				$this->$field = (bool)$value;
+				$this->$field = (bool) $value;
 				break;
 			case 'unsigned':
-				$this->$field = (int)$value;
+				$this->$field = (int) $value;
 				break;
 		}
 		$this->_dirty[] = $field;
@@ -182,11 +192,11 @@ trait DBPersistTrait
 	 * @param array $where An array of where clauses (see getWhere())
 	 * @param array $order An array of order clauses (see getOrder())
 	 */
-	public function __construct(mixed $param = null, array $where = [], array $order = [])
+	public function __construct( mixed $param = null, array $where = [], array $order = [] )
 	{
 		$this->_where = $where;
 		$this->_order = $order;
-		parent::__construct($param);
+		parent::__construct( $param );
 	}
 	/* #endregion */
 
@@ -196,9 +206,9 @@ trait DBPersistTrait
 	 * create – create a new record in the \Kingsoft\Db\Database or update an existing one
 	 * @return bool
 	 */
-	public function freeze():bool
+	public function freeze(): bool
 	{
-		if( $this-> isRecord() ) {
+		if( $this->isRecord() ) {
 			return $this->update();
 		}
 		return $this->insert();
@@ -214,45 +224,45 @@ trait DBPersistTrait
 	 */
 	public function thaw( mixed $id ): null|\Kingsoft\Persist\IPersist
 	{
-    $query = sprintf
-      ( 'select %s from %s where `%s` = :ID'
-      , static::getSelectFields( false )
-      , static::getTableName()
-      , static::getPrimaryKey( )
+		$query = sprintf
+		( 'select %s from %s where `%s` = :ID'
+			, static::getSelectFields( false )
+			, static::getTableName()
+			, static::getPrimaryKey()
 		);
 
 		try {
-			$stmt = Database::getConnection()->prepare($query);
+			$stmt = Database::getConnection()->prepare( $query );
 			if( !$stmt ) {
-				throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this-> getTableName()}:%s)" );
+				throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this->getTableName()}:%s)" );
 			}
 
-			if( !$stmt-> execute([':ID'=>$id]) ) {
-				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this-> getTableName()}:%s)" );
+			if( !$stmt->execute( [ ':ID' => $id ] ) ) {
+				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this->getTableName()}:%s)" );
 			}
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt->fetch() ) {
-				switch( $this->getFields()[$this->getPrimaryKey()][0] ) {
+				switch($this->getFields()[ $this->getPrimaryKey()][0]) {
 					case 'int':
-						$this-> {$this->getPrimaryKey()} = (int)$id;
+						$this->{$this->getPrimaryKey()} = (int) $id;
 						break;
 					case 'string':
-						$this-> {$this->getPrimaryKey()} = (string)$id;
+						$this->{$this->getPrimaryKey()} = (string) $id;
 						break;
 					default:
-						throw new \Exception("Unknown type for primary key");
+						throw new \Exception( "Unknown type for primary key" );
 				}
-				$this-> _dirty = [];
+				$this->_dirty = [];
 				return $this;
 			} else {
-				$this-> {$this->getPrimaryKey()} = null;
-				$this-> _dirty = [];
+				$this->{$this->getPrimaryKey()} = null;
+				$this->_dirty                   = [];
 				return null;
 			}
-		} catch( \PDOException $e ) {
-			$errorInfo = $stmt-> errorInfo();
-			$message = sprintf(
+		} catch ( \PDOException $e ) {
+			$errorInfo = $stmt->errorInfo();
+			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
 				$errorInfo[2]
@@ -271,16 +281,16 @@ trait DBPersistTrait
 	protected function insert(): bool
 	{
 		try {
-			if( $this->getInsertStatement()->execute( ) ) {
-				$this->{$this->getPrimaryKey()} = (int)Database::getConnection( )->lastInsertId( );
-				$this-> _dirty = [];
+			if( $this->getInsertStatement()->execute() ) {
+				$this->{$this->getPrimaryKey()} = (int) Database::getConnection()->lastInsertId();
+				$this->_dirty                  = [];
 				return true;
 			} else {
 				throw DatabaseException::createExecutionException(
 					$this->insert_statement, "Could not insert in {$this->getTableName()}:%s" );
 			}
 
-		} catch( \PDOException $e ) {
+		} catch ( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
 				$this->insert_statement, "Could not insert in {$this->getTableName()}:%s)"
 			);
@@ -295,18 +305,18 @@ trait DBPersistTrait
 	{
 		try {
 
-			if( $this->getUpdateStatement() ->execute( ) ) {
-				$this-> _dirty = [];
+			if( $this->getUpdateStatement()->execute() ) {
+				$this->_dirty = [];
 				return true;
 			}
 
 			throw DatabaseException::createExecutionException(
-				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
+				$this->update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 
-		} catch( \PDOException $e ) {
+		} catch ( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this-> update_statement, "Could not update {$this->getTableName()}:%s"
+				$this->update_statement, "Could not update {$this->getTableName()}:%s"
 			);
 		}
 	}
@@ -321,18 +331,18 @@ trait DBPersistTrait
 	{
 		try {
 
-			if( $this->getDeleteStatement()-> execute( ) ) {
-				$this-> _dirty = [];
-				$this->{$this-> getPrimaryKey()} = 0;
+			if( $this->getDeleteStatement()->execute() ) {
+				$this->_dirty                   = [];
+				$this->{$this->getPrimaryKey()} = 0;
 				return true;
 			}
 			throw DatabaseException::createExecutionException(
-				$this-> delete_statement, "Could not delete {$this->getTableName()}:%s"
+				$this->delete_statement, "Could not delete {$this->getTableName()}:%s"
 			);
 
-		} catch( \PDOException $e ) {
+		} catch ( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this-> delete_statement, "Could not delete from {self->getTableName()}:%s"
+				$this->delete_statement, "Could not delete from {self->getTableName()}:%s"
 			);
 		}
 	}
@@ -341,16 +351,16 @@ trait DBPersistTrait
 	/* #region Traversal */
 
 	/**
-	 * find – find records in the \Kingsoft\Db\Database
+		* find – find records in the \Kingsoft\Db\Database
 
-	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return null|object
-	 */
-	public static function find(?array $where = [], ?array $order = []): null|static
+		* @throws \Kingsoft\Db\DatabaseException
+		* @return null|object
+		*/
+	public static function find( ?array $where = [], ?array $order = [] ): null|static
 	{
-		$obj = new static(where: $where, order: $order);
+		$obj = new static( where: $where, order: $order );
 		$obj->findFirst();
-		if ($obj-> _valid) {
+		if( $obj->_valid ) {
 			return $obj;
 		}
 		return null;
@@ -377,39 +387,39 @@ trait DBPersistTrait
 	{
 		$query = sprintf(
 			'select %s from %s',
-			self::getSelectFields(true),
+			self::getSelectFields( true ),
 			$this->getTableName()
 		);
 		$query .= $this->getWhere();
 		$query .= $this->getOrderBy();
 		try {
-			if( !$stmt = Database::getConnection()-> prepare($query) ) {
+			if( !$stmt = Database::getConnection()->prepare( $query ) ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare statement for {$this->getTableName()}:%s"
 				);
 			}
-			if( !$this-> bindWhere($stmt) ) {
+			if( !$this->bindWhere( $stmt ) ) {
 				throw DatabaseException::createExecutionException(
 					$stmt, "Could not bind where in {$this->getTableName()}:%s"
 				);
 			}
 
 
-			if( !$stmt-> execute() ) {
+			if( !$stmt->execute() ) {
 				throw DatabaseException::createExecutionException( $stmt, "Could not execute statement for {$this->getTableName()}:%s" );
 			}
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
-			if( $stmt-> fetch() ) {
-				$this-> current_statement = $stmt;
-				$this-> _valid = true;
-				$this-> _dirty = [];
+			if( $stmt->fetch() ) {
+				$this->current_statement = $stmt;
+				$this->_valid            = true;
+				$this->_dirty            = [];
 			} else {
-				$this-> _valid = false;
+				$this->_valid = false;
 			}
-		} catch( \PDOException $e ) {
-			$errorInfo = $stmt-> errorInfo();
-			$message = sprintf(
+		} catch ( \PDOException $e ) {
+			$errorInfo = $stmt->errorInfo();
+			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
 				$errorInfo[2]
@@ -424,35 +434,35 @@ trait DBPersistTrait
 	public function findNext(): bool
 	{
 		try {
-			if( $this-> current_statement-> fetch() ) {
-				$this-> _valid = true;
-				$this-> _dirty = [];
+			if( $this->current_statement->fetch() ) {
+				$this->_valid = true;
+				$this->_dirty = [];
 				return true;
 			} else {
-				$this-> _valid = false;
+				$this->_valid = false;
 				return false;
 			}
-		} catch( \PDOException $e ) {
+		} catch ( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this-> current_statement, "Could not find next in {$this-> getTableName()}:%s"
+				$this->current_statement, "Could not find next in {$this->getTableName()}:%s"
 			);
 		}
 	}
-	
+
 	/**
 	 * Generator findAll() – find all records in the \Kingsoft\Db\Database
 	 * @return \Generator 
 	 * @throws \Kingsoft\Db\DatabaseException 
 	 */
-	public static function findAll( ?array $where =[], ?array $order=[] ): \Generator
+	public static function findAll( ?array $where = [], ?array $order = [] ): \Generator
 	{
-		$obj = ((object)(new static))-> setWhere($where)-> setOrder($order);
+		$obj = ( (object) ( new static ) )->setWhere( $where )->setOrder( $order );
 		for(
-			$obj-> findFirst();
-			$obj-> _valid;
-			$obj-> findNext()
+			$obj->findFirst();
+			$obj->_valid;
+			$obj->findNext()
 		) {
-			yield $obj-> {$obj->getPrimaryKey()} => $obj;
+			yield $obj->{$obj->getPrimaryKey()} => $obj;
 		}
 	}
 
@@ -464,7 +474,7 @@ trait DBPersistTrait
 	 * @example ['id' => 'asc', 'name' => 'desc']
 	 * @return object
 	 */
-	public function setOrder(array $order): object
+	public function setOrder( array $order ): object
 	{
 		$this->_order = $order;
 		return $this;
@@ -476,13 +486,14 @@ trait DBPersistTrait
 	private function getOrderBy(): string
 	{
 		$order = [];
-		foreach ($this->_order as $fieldname => $direction) {
-			if ($this->_isField($fieldname)) {
+		foreach( $this->_order as $fieldname => $direction ) {
+			if( $this->_isField( $fieldname ) ) {
 				$order[] = "`$fieldname` $direction";
-			} else throw new \InvalidArgumentException(sprintf('Field %s does not exist in %s', $fieldname, $this->getTableName()));
+			} else
+				throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $fieldname, $this->getTableName() ) );
 		}
-		if (count($order) > 0) {
-			return ' order by ' . implode(', ', $order);
+		if( count( $order ) > 0 ) {
+			return ' order by ' . implode( ', ', $order );
 		}
 		return '';
 	}
@@ -504,13 +515,13 @@ trait DBPersistTrait
 	 * @param  mixed $where
 	 * @return \Kingsoft\Persist\Base
 	 */
-	public function setWhere(array $where): \Kingsoft\Persist\Base
+	public function setWhere( array $where ): \Kingsoft\Persist\Base
 	{
-		array_walk($where, function ($value, $key) {
-			if (!$this->_isField($key)) {
-				throw new \InvalidArgumentException(sprintf('Field %s does not exist in %s', $key, $this->getTableName()));
+		array_walk( $where, function ($value, $key) {
+			if( !$this->_isField( $key ) ) {
+				throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $key, $this->getTableName() ) );
 			}
-		});
+		} );
 		$this->_where = $where;
 		return $this;
 	}
@@ -521,49 +532,58 @@ trait DBPersistTrait
 	 */
 	private function getWhere(): string
 	{
-		$where = ['0=0']; // do nothing
+		$where = [ '0=0' ]; // do nothing
 		foreach( $this->_where as $fieldname => $filter ) {
-			if( strstr('=!*<>&|^~', substr($filter, 0, 1)) ) {
-				$operator = substr($filter, 0, 1);
+			if( strstr( '=!*<>&|^~', substr( $filter, 0, 1 ) ) ) {
+				$operator = substr( $filter, 0, 1 );
 
 				// Pop off the first character
-				$this->__set( $fieldname, substr($filter, 1) );
+				$this->__set( $fieldname, substr( $filter, 1 ) );
 
 				// Special case of the SQL 'IN' operator
 				if( $operator === '~' ) {
 
 					// We store the comma seperated operand list as array of values
 					// which will be bound later
-					$in_values = explode(',', $filter);
+					$in_values = explode( ',', $filter );
 
 					// create a comma seperated list of numbered placeholders
 					// "IN (:name_1,:name_2,....)"
 					$in_section = [];
-					for ($i = 0; $i < count($in_values); $i++) {
+					for( $i = 0; $i < count( $in_values ); $i++ ) {
 						$in_section[] = ":{$fieldname}_{$i}";
 					}
-					$in_section = implode(',', $in_section);
+					$in_section = implode( ',', $in_section );
 
 					$where[] = "`$fieldname` IN ($in_section)";
 				} else {
 
-					switch ($operator) {
-						case '!':	$operator = '<>';	break;
-						case '*':	$operator = 'like';	break; // the reason why the operands are swapped
-						case '<': $operator = '>'; break; // the operands are swapped!
-						case '>':	$operator = '<'; break; // the operands are swapped!
-						default:	break; // we take the operator as it is for all other cases
+					switch($operator) {
+						case '!':
+							$operator = '<>';
+							break;
+						case '*':
+							$operator = 'like';
+							break; // the reason why the operands are swapped
+						case '<':
+							$operator = '>';
+							break; // the operands are swapped!
+						case '>':
+							$operator = '<';
+							break; // the operands are swapped!
+						default:
+							break; // we take the operator as it is for all other cases
 					}
 
 					$where[] = "`$fieldname` $operator :$fieldname";
 				}
 			} else {
 				// no operator, we assume '='
-				$this->__set($fieldname, $filter);
+				$this->__set( $fieldname, $filter );
 				$where[] = "`$fieldname` = :$fieldname";
 			}
 		}
-		$where = implode(' and ', $where);
+		$where = implode( ' and ', $where );
 		return ' where ' . $where;
 	}
 	/**
@@ -576,13 +596,13 @@ trait DBPersistTrait
 	{
 		$result = true;
 		foreach( $this->_where as $fieldname => $filter ) {
-			if( substr($filter, 0, 1) === '~' ) {
-				$in_values = explode(',', substr($filter, 1));
-				for( $i = 0; $i < count($in_values); $i++ ) {
-					$result = $result && $stmt->bindValue(":{$fieldname}_{$i}", $in_values[$i]);
+			if( substr( $filter, 0, 1 ) === '~' ) {
+				$in_values = explode( ',', substr( $filter, 1 ) );
+				for( $i = 0; $i < count( $in_values ); $i++ ) {
+					$result = $result && $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[ $i ] );
 				}
 			} else {
-				$result = $result && $stmt->bindValue( ":$fieldname", $this->getFieldString($fieldname) );
+				$result = $result && $stmt->bindValue( ":$fieldname", $this->getFieldString( $fieldname ) );
 			}
 		}
 		return $result;
@@ -603,7 +623,7 @@ trait DBPersistTrait
 	 */
 	protected function getInsertStatement(): \PDOStatement
 	{
-		if( is_null($this-> insert_statement) ) {
+		if( is_null( $this->insert_statement ) ) {
 			$query = sprintf(
 				'insert into %s(%s) values(%s)',
 				static::getTableName(),
@@ -611,17 +631,17 @@ trait DBPersistTrait
 				static::getFieldPlaceholders( false )
 			);
 
-			$this-> insert_statement = Database::getConnection()-> prepare( $query );
+			$this->insert_statement = Database::getConnection()->prepare( $query );
 			if( !$this->insert_statement ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare insert statement for {$this->getTableName()}:%s" );
 			}
-			if( !$this-> bindValueList( $this-> insert_statement, true ) ) {
+			if( !$this->bindValueList( $this->insert_statement, true ) ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not bind insert statement for {$this->getTableName()}:%s" );
 			}
 		}
-		return $this-> insert_statement;
+		return $this->insert_statement;
 	}
 	/**
 	 * Create Statement, bind to object members and save
@@ -635,21 +655,21 @@ trait DBPersistTrait
 		$query = sprintf(
 			'update %s set %s where %s = :ID',
 			static::getTableName(),
-			$this-> getUpdateFieldList( false ),
+			$this->getUpdateFieldList( false ),
 			static::getPrimaryKey()
 		);
 
-		$result = Database::getConnection( )-> prepare( $query );
+		$result = Database::getConnection()->prepare( $query );
 		if( !$result ) {
 			throw DatabaseException::createStatementException(
 				Database::getConnection(), "Could not prepare update statement for {$this->getTableName()}:%s"
 			);
 		}
-		if( !$result-> bindParam( ':ID', $this-> {$this-> getPrimaryKey()} ) ) {
+		if( !$result->bindParam( ':ID', $this->{$this->getPrimaryKey()} ) ) {
 			throw DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind ID to update statement for {$this->getTableName()}:%s" );
 		}
-		if( !$this-> bindValueList( $result, false ) ) {
+		if( !$this->bindValueList( $result, false ) ) {
 			throw DatabaseException::createStatementException(
 				Database::getConnection(), "Could not bind update statement for {$this->getTableName()}:%s"
 			);
@@ -668,18 +688,18 @@ trait DBPersistTrait
 	 */
 	protected function getDeleteStatement(): \PDOStatement
 	{
-		if( is_null($this-> delete_statement) ) {
-			$query = sprintf( 'delete from %s where `%s` = :ID',
+		if( is_null( $this->delete_statement ) ) {
+			$query                   = sprintf( 'delete from %s where `%s` = :ID',
 				static::getTableName(),
 				static::getPrimaryKey()
 			);
-			$this-> delete_statement = Database::getConnection()-> prepare( $query );
-			if( !$this-> delete_statement ) {
+			$this->delete_statement = Database::getConnection()->prepare( $query );
+			if( !$this->delete_statement ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not prepare delete statement {$this->getTableName()}:%s"
 				);
 			}
-			if( !$this-> delete_statement->bindParam( ':ID', $this->{$this-> getPrimaryKey()}) ) {
+			if( !$this->delete_statement->bindParam( ':ID', $this->{$this->getPrimaryKey()} ) ) {
 				throw DatabaseException::createStatementException(
 					Database::getConnection(), "Could not bind ID to delete statement {$this->getTableName()}:%s"
 				);
