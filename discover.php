@@ -37,6 +37,7 @@ $table_stat->bindColumn( 1, $table_name );
 $all_tables = [];
 while( $table_stat->fetch() ) {
   //Make filename PSR-4 compliant
+  $class_name   = str_replace( '-', '_', $class_name );
   $class_name   = Format::snakeToPascal( $table_name );
   $file_name    = DISCOVERED_CLASSFOLDER . $class_name . ".php";
   $all_tables[] = $class_name;
