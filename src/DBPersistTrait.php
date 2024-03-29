@@ -116,7 +116,7 @@ trait DBPersistTrait
 	 */
 	private function bindValueList( \PDOStatement $stmt, ?bool $ignore_dirty = false ): bool
 	{
-		$result                = true;
+		$result               = true;
 		$this->_insert_buffer = [];
 		foreach( static::getFields() as $field => $description ) {
 			// don't update primary key
@@ -274,6 +274,7 @@ trait DBPersistTrait
 	/**
 	 * Insert a new record in the \Kingsoft\Db\Database
 	 * NOTE: This is not thread save as between the execute and lastInsertId another
+	 * Apart from that the ID might be not an autoincrement field but string or a UUID
 	 * sql statement could occur yielding the wrong ID to be set.
 	 * @throws \Kingsoft\Db\DatabaseException
 	 * @return bool
@@ -282,8 +283,10 @@ trait DBPersistTrait
 	{
 		try {
 			if( $this->getInsertStatement()->execute() ) {
-				$this->{$this->getPrimaryKey()} = (int) Database::getConnection()->lastInsertId();
-				$this->_dirty                  = [];
+				if( $this->isPrimaryKeyAutoIncrement() ) {
+					$this->{$this->getPrimaryKey()} = (int) Database::getConnection()->lastInsertId();
+				}
+				$this->_dirty = [];
 				return true;
 			} else {
 				throw DatabaseException::createExecutionException(
@@ -351,11 +354,11 @@ trait DBPersistTrait
 	/* #region Traversal */
 
 	/**
-		* find – find records in the \Kingsoft\Db\Database
+			* find – find records in the \Kingsoft\Db\Database
 
-		* @throws \Kingsoft\Db\DatabaseException
-		* @return null|object
-		*/
+			* @throws \Kingsoft\Db\DatabaseException
+			* @return null|object
+			*/
 	public static function find( ?array $where = [], ?array $order = [] ): null|static
 	{
 		$obj = new static( where: $where, order: $order );
@@ -623,12 +626,18 @@ trait DBPersistTrait
 	 */
 	protected function getInsertStatement(): \PDOStatement
 	{
+		$isPrimaryKeyAutoIncrement = !( method_exists( __CLASS__, 'isPrimaryKeyAutoIncrement' ) && self::isPrimaryKeyAutoIncrement() );
+		// if not an autoincrement field, it has to be in the dirty list
+		// otherwise use lastInsertId
+		if( !$isPrimaryKeyAutoIncrement && !array_key_exists( $this->getPrimaryKey(), $this->_dirty ) ) {
+			$this->_dirty = array_keys( static::getFields() );
+		}
 		if( is_null( $this->insert_statement ) ) {
 			$query = sprintf(
 				'insert into %s(%s) values(%s)',
 				static::getTableName(),
-				static::getSelectFields( false ),
-				static::getFieldPlaceholders( false )
+				static::getSelectFields( $isPrimaryKeyAutoIncrement ),
+				static::getFieldPlaceholders( $isPrimaryKeyAutoIncrement )
 			);
 
 			$this->insert_statement = Database::getConnection()->prepare( $query );
@@ -689,7 +698,7 @@ trait DBPersistTrait
 	protected function getDeleteStatement(): \PDOStatement
 	{
 		if( is_null( $this->delete_statement ) ) {
-			$query                   = sprintf( 'delete from %s where `%s` = :ID',
+			$query                  = sprintf( 'delete from %s where `%s` = :ID',
 				static::getTableName(),
 				static::getPrimaryKey()
 			);
