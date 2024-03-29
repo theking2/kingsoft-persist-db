@@ -50,6 +50,9 @@ while( $table_stat->fetch() ) {
   $cols_stat->bindColumn( 1, $fieldName );
   $cols_stat->bindColumn( 2, $fieldType );
   $cols_stat->bindColumn( 4, $fieldKey );
+  $cols_stat->bindColumn( 6, $fieldExtra );
+
+  $hasAutoIncrement = $fieldExtra === 'auto_increment';
 
   $cols = [];
 
@@ -108,6 +111,7 @@ while( $table_stat->fetch() ) {
 
   fwrite( $fh, "\n\t// Persist functions\n" );
   fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
+  fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement?'true':'false' );
   fprintf( $fh, "\tstatic public function getTableName():string { return '`%s`'; }\n", $table_name );
   fwrite( $fh, "\tstatic public function getFields():array {\n" );
   fwrite( $fh, "\t\treturn [\n" );
