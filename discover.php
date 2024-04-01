@@ -138,9 +138,10 @@ echo '<pre>';
 echo '
   "autoload": {
     "psr-4": {
-      "' . _NAMESPACE . '\\\\": "' . DISCOVERED_CLASSFOLDER . '"
+      "' . addslashes(_NAMESPACE . "\\") . '": "' . addslashes(DISCOVERED_CLASSFOLDER) . '"
     }
   }
+';
 ';
 echo '</pre>';
 
