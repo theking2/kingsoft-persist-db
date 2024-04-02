@@ -1,11 +1,15 @@
 <?php declare(strict_types=1);
 define( 'SETTINGS_FILE', $_SERVER['DOCUMENT_ROOT'] . '/config/settings.ini' );
-
-require $_SERVER['DOCUMENT_ROOT'] . '/vendor/kingsoft/utils/settings.inc.php';
+define( 'ROOT', $_SERVER['DOCUMENT_ROOT'] . '/' );
+require ROOT . 'vendor/kingsoft/utils/settings.inc.php';
 require ROOT . 'vendor/autoload.php';
 
 if( !defined( '_NAMESPACE' ) ) {
-  define( '_NAMESPACE', ucfirst( SETTINGS['api']['namespace'] ) );
+  $configuredNamespace = str_replace('\\', '/', SETTINGS['api']['namespace']);
+  $parts = explode( '/', $configuredNamespace) ;
+  $parts = array_map( 'ucfirst', $parts );
+  $namespace = implode( '/', $parts ); 
+  define( '_NAMESPACE', $namespace );
 }
 define( 'DISCOVERED_CLASSFOLDER', str_replace('\\' , '/', ROOT) . 'discovered/' . _NAMESPACE . '/' );
 if( !is_dir( DISCOVERED_CLASSFOLDER ) )
@@ -135,10 +139,10 @@ echo '</pre>';
 echo '<hr>';
 echo '<h2>composer.json</h2>';
 echo '<pre>';
-echo '
+echo ',
   "autoload": {
     "psr-4": {
-      "' . addslashes(_NAMESPACE . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
+      "' . addslashes(str_replace('/', '\\', _NAMESPACE) . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
     }
   }
 ';
