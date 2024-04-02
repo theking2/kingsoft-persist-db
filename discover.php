@@ -8,10 +8,10 @@ if( !defined( '_NAMESPACE' ) ) {
   $configuredNamespace = str_replace('\\', '/', SETTINGS['api']['namespace']);
   $parts = explode( '/', $configuredNamespace) ;
   $parts = array_map( 'ucfirst', $parts );
-  $namespace = implode( '/', $parts ); 
+  $namespace = implode( '\\', $parts ); 
   define( '_NAMESPACE', $namespace );
 }
-define( 'DISCOVERED_CLASSFOLDER', str_replace('\\' , '/', ROOT) . 'discovered/' . _NAMESPACE . '/' );
+define( 'DISCOVERED_CLASSFOLDER', str_replace('\\' , '/', ROOT . 'discovered/' . _NAMESPACE . '/' ) );
 if( !is_dir( DISCOVERED_CLASSFOLDER ) )
   mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
 
@@ -142,10 +142,8 @@ echo '<pre>';
 echo ',
   "autoload": {
     "psr-4": {
-      "' . addslashes(str_replace('/', '\\', _NAMESPACE) . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
+      "' . addslashes(_NAMESPACE . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
     }
   }
 ';
 echo '</pre>';
-
-
