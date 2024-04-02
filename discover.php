@@ -7,7 +7,7 @@ require ROOT . 'vendor/autoload.php';
 if( !defined( '_NAMESPACE' ) ) {
   define( '_NAMESPACE', ucfirst( SETTINGS['api']['namespace'] ) );
 }
-define( 'DISCOVERED_CLASSFOLDER', ROOT . 'discovered/' . _NAMESPACE . '/' );
+define( 'DISCOVERED_CLASSFOLDER', str_replace('\\' , '/', ROOT) . 'discovered/' . _NAMESPACE . '/' );
 if( !is_dir( DISCOVERED_CLASSFOLDER ) )
   mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
 
@@ -138,7 +138,7 @@ echo '<pre>';
 echo '
   "autoload": {
     "psr-4": {
-      "' . addslashes(_NAMESPACE . "\\") . '": "' . addslashes(DISCOVERED_CLASSFOLDER) . '"
+      "' . addslashes(_NAMESPACE . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
     }
   }
 ';
