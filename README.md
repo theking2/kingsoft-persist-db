@@ -1,5 +1,5 @@
 # DB implementation of Persist
-This implementation of the abstract [`Persist/Base`](https://github.com/theking2/kingsoft-persist) uses a [`Db`](https://github.com/theking2/kingsoft-db) connection to make tables in the database available as persistent PHP objects. This generates a class for every table or view in the database extracting PK, possibly with auto increment from tables. With Mariadb it is not possible to extract PK from a table so manual setting the getPrimaryKey() is needed.
+This implementation of the abstract [`Persist/Base`](https://github.com/theking2/kingsoft-persist) uses a [`Db`](https://github.com/theking2/kingsoft-db) connection to make tables in the database available as persistent PHP objects. This generates a class for every table or view in the database extracting PK, possibly with auto increment from tables. With Mariadb it is not possible to extract PK from a view so manual setting the getPrimaryKey() is needed.
 
 ## Setup
 To create the PHP proxies to the tables and views use
