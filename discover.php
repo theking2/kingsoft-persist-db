@@ -5,13 +5,13 @@ require ROOT . 'vendor/kingsoft/utils/settings.inc.php';
 require ROOT . 'vendor/autoload.php';
 
 if( !defined( '_NAMESPACE' ) ) {
-  $configuredNamespace = str_replace('\\', '/', SETTINGS['api']['namespace']);
-  $parts = explode( '/', $configuredNamespace) ;
-  $parts = array_map( 'ucfirst', $parts );
-  $namespace = implode( '\\', $parts ); 
+  $configuredNamespace = str_replace( '\\', '/', SETTINGS['api']['namespace'] );
+  $parts               = explode( '/', $configuredNamespace );
+  $parts               = array_map( 'ucfirst', $parts );
+  $namespace           = implode( '\\', $parts );
   define( '_NAMESPACE', $namespace );
 }
-define( 'DISCOVERED_CLASSFOLDER', str_replace('\\' , '/', ROOT . 'discovered/' . _NAMESPACE . '/' ) );
+define( 'DISCOVERED_CLASSFOLDER', str_replace( '\\', '/', ROOT . 'discovered/' . _NAMESPACE . '/' ) );
 if( !is_dir( DISCOVERED_CLASSFOLDER ) )
   mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
 
@@ -40,6 +40,12 @@ $table_stat->bindColumn( 1, $table_name );
 
 $all_tables = [];
 while( $table_stat->fetch() ) {
+  doTable( $table_name );
+}
+function doTable( $table_name )
+{
+  global $db, $type_list, $all_tables;
+
   //Make filename PSR-4 compliant
   $class_name   = str_replace( '-', '_', $table_name );
   $class_name   = Format::snakeToPascal( $class_name );
@@ -74,7 +80,7 @@ while( $table_stat->fetch() ) {
       }
     }
   }
-  echo Html::wrap_tag( 'p', "key: $keyname" );
+  echo Html::wrap_tag( 'p', "key: " . ($keyname ?? 'none') );
   echo '<ul>';
   foreach( $cols as $fieldName => $fieldDescription ) {
     echo Html::wrap_tag( 'li', $fieldName );
@@ -115,8 +121,14 @@ while( $table_stat->fetch() ) {
   ;
 
   fwrite( $fh, "\n\t// Persist functions\n" );
-  fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
-  fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
+  if( isset( $keyname ) ) {
+    fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
+    fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
+  } else {
+    // No primary key, so we need to override the default
+    fprintf( $fh, "\t//static public function getPrimaryKey():string { return ''; }\n" );
+    fprintf( $fh, "\t//static public function isPrimaryKeyAutoIncrement():bool { return false; }\n" );
+  }
   fprintf( $fh, "\tstatic public function getTableName():string { return '`%s`'; }\n", $table_name );
   fwrite( $fh, "\tstatic public function getFields():array {\n" );
   fwrite( $fh, "\t\treturn [\n" );
@@ -142,7 +154,7 @@ echo '<pre>';
 echo ',
   "autoload": {
     "psr-4": {
-      "' . addslashes(_NAMESPACE . "\\") . '": "' . DISCOVERED_CLASSFOLDER . '"
+      "' . addslashes( _NAMESPACE . "\\" ) . '": "' . DISCOVERED_CLASSFOLDER . '"
     }
   }
 ';
