@@ -80,7 +80,7 @@ function doTable( $table_name )
       }
     }
   }
-  echo Html::wrap_tag( 'p', "key: " . ($keyname ?? 'none') );
+  echo Html::wrap_tag( 'p', "key: " . ( $keyname ?? 'none' ) );
   echo '<ul>';
   foreach( $cols as $fieldName => $fieldDescription ) {
     echo Html::wrap_tag( 'li', $fieldName );
@@ -124,6 +124,13 @@ function doTable( $table_name )
   if( isset( $keyname ) ) {
     fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
     fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
+    if( $hasAutoIncrement ) {
+      if( $cols[ $keyname ][0] === 'int' )
+        fprintf( $fh, "\tstatic public function nextPrimaryKey():int { return 0; }\n" );
+      else if( $cols[ $keyname ][0] === 'string' ) {
+        fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return uniqid(); }\n" );
+      }
+    }
   } else {
     // No primary key, so we need to override the default
     fprintf( $fh, "\t//static public function getPrimaryKey():string { return ''; }\n" );

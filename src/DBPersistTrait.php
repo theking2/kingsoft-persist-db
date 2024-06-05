@@ -120,7 +120,7 @@ trait DBPersistTrait
 		$this->_insert_buffer = [];
 		foreach( static::getFields() as $field => $description ) {
 			// don't update primary key
-			if( $field === static::getPrimaryKey() )
+			if( $this->isPrimaryKeyAutoIncrement() and $field === static::getPrimaryKey() )
 				continue;
 			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
 				$result = $result && $stmt->bindValue( ':' . $field, $this->_insert_buffer[] = $this->getFieldString( $field ) );
@@ -282,6 +282,10 @@ trait DBPersistTrait
 	protected function insert(): bool
 	{
 		try {
+			if( !$this->isPrimaryKeyAutoIncrement() ) {
+				$this->{$this->getPrimaryKey()} = $this->nextPrimaryKey();
+			}
+
 			if( $this->getInsertStatement()->execute() ) {
 				if( $this->isPrimaryKeyAutoIncrement() ) {
 					$this->{$this->getPrimaryKey()} = (int) Database::getConnection()->lastInsertId();
@@ -354,11 +358,11 @@ trait DBPersistTrait
 	/* #region Traversal */
 
 	/**
-			* find – find records in the \Kingsoft\Db\Database
+			 * find – find records in the \Kingsoft\Db\Database
 
-			* @throws \Kingsoft\Db\DatabaseException
-			* @return null|object
-			*/
+			 * @throws \Kingsoft\Db\DatabaseException
+			 * @return null|object
+			 */
 	public static function find( ?array $where = [], ?array $order = [] ): null|static
 	{
 		$obj = new static( where: $where, order: $order );
