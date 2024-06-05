@@ -124,11 +124,16 @@ function doTable( $table_name )
   if( isset( $keyname ) ) {
     fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
     fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
-    if( $hasAutoIncrement ) {
-      if( $cols[ $keyname ][0] === 'int' )
-        fprintf( $fh, "\tstatic public function nextPrimaryKey():int { return 0; }\n" );
-      else if( $cols[ $keyname ][0] === 'string' ) {
-        fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return uniqid(); }\n" );
+    if( !$hasAutoIncrement ) {
+      switch( $cols[ $keyname ][0] ) {
+        case 'int':
+          fprintf( $fh, "\tstatic public function nextPrimaryKey():int { return 0; }\n" );
+          break;
+        case 'string':
+          fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return uniqid(true); }\n" );
+          break;
+        default:
+          fprintf( $fh, "\t//static public function nextPrimaryKey():string { return ''; }\n" );
       }
     }
   } else {
