@@ -15,16 +15,17 @@ composer dump-autoload
 The `allowedEndPoints` array can be used for a [`persist-rest`](https://github.com/theking2/kingsoft-persist-rest) settings section. 
 
 The proxy objects work as a facade for database tables and can now used to (CRUD)
- * Created a recordd in the database with freeze()
- * Read from the databae with thaw(id)
- * Updated by reading and changing the properties and freeze()
- * Deleted by `thaw`ing and  `delete`ing the php object
+ * Created a record, set the attributes and call `Persist::freeze()` to store it in the database
+ * Read by constructor(  ) using the record's id as the single parameter
+ * Update by reading, changing the properties and IPersist::freeze()
+ * Delete by `thaw`ing and  `IPersist::delete`ing the php object
 
-We have a CRUD object in this way. Yaj!
+We have turened a normal PHP object in a CRUD object in this way. Yaj!
 
 # Searching
-Searching is also possible be setting a where and order with a static `findall` which gets a `Generator` interface to use with foreach. A `findFirst`, `fineNext`, can be used in an `Iterator` context using the `Persist\IteratorTrait`. The object itself is a generater and can be used in a `yield` loop.
+Searching is also possible be setting a where and order with a static `findall` which gets a `Generator` interface to use with foreach. A `findFirst`, `fineNext`, can be used in an `Iterator` context using the `Persist\IteratorTrait`. The object itself is a generater and can be used in a `yield` loop. 
 
 # Services
  * `Persist\Base::createFromArray()` creates a record from an array representation
- * `Persist\Base::getJson()` retrieves a json representation of the object
+ * `Persist\Base::getJson()` creates a json representation of the object
+ * `Persist\Base::createFromJson()` does the reverse
