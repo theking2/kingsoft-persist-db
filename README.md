@@ -6,7 +6,7 @@ To create the PHP proxies to the tables and views use
 ```
 https://example.com/vendor/kingsoft/persist-db/discover.php
 ```
-which only works if the proper global SETTINGS array is available. (See [`Kingsoft\Utils`](https://github.com/theking2/kingsoft-utils)
+which only works if the proper global SETTINGS array is available. (See [`Kingsoft\Utils`](https://github.com/theking2/kingsoft-utils). Specifically it requires the proper DB settings and a `namespace=` setting under `[api]` to generate the classses in the required PHP namespace. The location can later be added to the `composer.json` file for autoload.
 
 This will create a folder `discovered` in the root with subfolders based on namespace in the settings file. It also responds with a page listing what is available. To have the proxies autoloaded add the psr-4 section to your `composer.json`and run 
 ```
@@ -14,7 +14,7 @@ composer dump-autoload
 ```
 The `allowedEndPoints` array can be used for a [`persist-rest`](https://github.com/theking2/kingsoft-persist-rest) settings section. 
 
-The proxy objects work as a facade for database tables and can now used to 
+The proxy objects work as a facade for database tables and can now used to (CRUD)
  * Created a recordd in the database with freeze()
  * Read from the databae with thaw(id)
  * Updated by reading and changing the properties and freeze()
