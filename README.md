@@ -11,7 +11,7 @@ https://example.com/vendor/kingsoft/persist-db/discover.php
 ```
 
 which only works if the proper global SETTINGS array is available. (See [`Kingsoft\Utils`](https://github.com/theking2/kingsoft-utils). Specifically it requires the proper DB settings and a `namespace=` setting under `[api]` to generate the classses in the required PHP namespace. The location can later be added to the `composer.json` file for autoload. 
-If a PK is not auto increment, a string is generated with `uniqid()` with the tablename- as prefix. The atrribute should be larger than CHAR(str_len(tablename) + 1 + 13).
+If a PK is not auto increment, a string is generated with bin2hex(random_bytes(12)) with the tablename- as prefix. The atrribute should be larger than CHAR(str_len(tablename) + 1 + 24).
 
 This will create a folder `discovered` in the root with subfolders based on namespace in the settings file. It also responds with a page listing what is available. To have the proxies autoloaded add the psr-4 section to your `composer.json`and run 
 
