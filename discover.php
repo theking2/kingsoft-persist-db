@@ -130,7 +130,7 @@ function doTable( $table_name )
           fprintf( $fh, "\tstatic public function nextPrimaryKey():int { return 0; }\n" );
           break;
         case 'string':
-          fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return uniqid(\"%s-\",true); }\n", $table_name);
+          fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return \"%s-\" . bin2hex(random_bytes(12)); }\n", $table_name);
           break;
         default:
           fprintf( $fh, "\t//static public function nextPrimaryKey():string { return ''; }\n" );
