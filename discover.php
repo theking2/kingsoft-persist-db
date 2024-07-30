@@ -22,7 +22,7 @@ use \Kingsoft\Utils\Format as Format;
  * Map SQL domains to php types
  */
 $type_list = [ 
-  'int' => [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
+  'int' => [ 'int', 'integer', 'mediumint', 'smallint', 'tinyint', 'bigint' ],
   'float' => [ 'float', 'double', 'real' ],
   'string' => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum', 'set' ],
   'bool' => [ 'bool', 'boolean' ],
