@@ -1,3 +1,20 @@
+<h2>Suchen</h2>
+<dl>
+  <dt>By ID</dt>
+  <dd>In alle endpoints kann gesucht werden und zwar nach ID: Beispiel "https://url/endpoint/34"
+    sucht nach endpoint mit id gleich '34'. Resultat bei gefunden 200, bei nicht gefunden 404. Bei Erfolg ist das Resultat in
+    JSON Objekt</dd>
+  <dt>By Example</dt>
+  <dd>Auf alle andere Attribute kann gesucht werden mit query-string. Beispiel
+    "https://url/endpoint/?title=hello".
+    Gross-/Kleinschreiben bei Key (title) beachten, beim Wert (helloe) spielt is keine Rolle.
+    Auch Jokerzeichen sind möglich "https://url/endpoint/?title=h*" sucht alle endpoints mit Feld title beginnend mit 'h'.
+    Bei Erfolg (200) ist das
+    Resultat immer ein JSON Array von Objekte.
+    Resultat bei Key nicht gefunden (missspelled): 400 Bad Request, bei nicht gefunden 204 no content
+  </dd>
+</dl>
+
 <h2>Methoden</h2>
 <p>Die folgenden Methoden sind zulässig:</p>
 <dl>
@@ -11,6 +28,7 @@
   <dt>LÖSCHEN</dt>
   <dd>Vorhandenen Eintrag für Endpunkt entfernen. Denken Sie daran, /{id}</dd> anzugeben
 </dl>
+
 <h2>Statuscodes</h2>
 <p>Der Dienst folgt REST-Standards mit den folgenden HTTP_Statuscodes:</p>
 <dl>
