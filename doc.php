@@ -54,15 +54,25 @@ echo file_get_contents( 'doc-footer.html' );
 function doTable( $table_name )
 {
   global $db, $type_list, $all_tables;
+  
+  $fieldName = "";
+  $fieldType = "";
+  $fieldKey  = "";
+  $fieldExtra = "";
 
   //Make filename PSR-4 compliant
   $class_name   = str_replace( '-', '_', $table_name );
   $class_name   = Format::snakeToPascal( $class_name );
+
   $file_name    = DISCOVERED_CLASSFOLDER . $class_name . ".php";
+
   $all_tables[] = $class_name;
+
   echo Html::wrap_tag( 'dt', $class_name );
   $url        = "http://" .  $_SERVER['HTTP_HOST'] . "/" . $class_name;
-  echo sprintf("<p><a target=\"_blank\" href=\"%1\$s\">%1\$s</a></p>", $url );
+  echo sprintf("<p>Retrieve: <a target=\"_blank\" href=\"%1\$s\">const url = \"%1\$s\"</a></p>", $url );
+  echo sprintf("<p>Update: const url = \"%1\$s/{\$%2\$sId}\"</p>", $url, Format::snakeToCamel($class_name) );
+  echo "<p>Note: views are not updatable</p>";
 
   $sql       = "show columns from `$table_name`";
   $cols_stat = $db->prepare( $sql );
@@ -94,12 +104,12 @@ function doTable( $table_name )
   echo '<dd>';
   echo Html::wrap_tag( 'p', "key: " . ($keyname ?? 'none') . " is auto increment: " . ($hasAutoIncrement?'ja':'nein') );
   echo Html::wrap_tag( 'p', "Fields:" );
-  echo '<ul>';
+  echo '<pre>';
+  printf("%s: {\n", Format::snakeToCamel($table_name));
   foreach( $cols as $fieldName => $fieldDescription ) {
-    echo Html::wrap_tag( 'li', "$fieldName, type: {$fieldDescription[0]}" );
+	  $width = 20 - mb_strlen($fieldName);
+	  if( ($fieldName === $keyname) && $hasAutoIncrement) continue;
+    printf( "\t%s: %-{$width}s // type: %s\n", $fieldName,  $fieldDescription[0]=='int'?"0":'""', $fieldDescription[0] );
   }
-  echo '</ul></dd>';
-
-
+  echo '}</pre></dd>';
 }
-
