@@ -109,7 +109,7 @@ function doTable( $table_name )
   foreach( $cols as $fieldName => $fieldDescription ) {
 	  $width = 20 - mb_strlen($fieldName);
 	  if( ($fieldName === $keyname) && $hasAutoIncrement) continue;
-    printf( "\t%s: %-{$width}s // type: %s\n", $fieldName,  $fieldDescription[0]=='int'?"0":'""', $fieldDescription[0] );
+    printf( "\t%s: %-{$width}s, // type: %s\n", $fieldName,  $fieldDescription[0]=='int'?"0":'""', $fieldDescription[0] );
   }
   echo '}</pre></dd>';
 }
