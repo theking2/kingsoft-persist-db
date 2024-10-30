@@ -1,14 +1,14 @@
 <h2>Suchen</h2>
 <dl>
   <dt>By ID</dt>
-  <dd>In alle endpoints kann gesucht werden und zwar nach ID: Beispiel "https://url/endpoint/34"
+  <dd>In alle endpoints kann gesucht werden und zwar nach ID: Beispiel "$apiUrl$/34"
     sucht nach endpoint mit id gleich '34'. Resultat bei gefunden 200, bei nicht gefunden 404. Bei Erfolg ist das Resultat in
     JSON Objekt</dd>
   <dt>By Example</dt>
   <dd>Auf alle andere Attribute kann gesucht werden mit query-string. Beispiel
-    "https://url/endpoint/?title=hello".
+    "$apiUrl$/?title=hello".
     Gross-/Kleinschreiben bei Key (title) beachten, beim Wert (helloe) spielt is keine Rolle.
-    Auch Jokerzeichen sind möglich "https://url/endpoint/?title=h*" sucht alle endpoints mit Feld title beginnend mit 'h'.
+    Auch Jokerzeichen sind möglich "$apiUrl$/?title=h*" sucht alle endpoints mit Feld title beginnend mit 'h'.
     Bei Erfolg (200) ist das
     Resultat immer ein JSON Array von Objekte.
     Resultat bei Key nicht gefunden (missspelled): 400 Bad Request, bei nicht gefunden 204 no content
@@ -19,14 +19,84 @@
 <p>Die folgenden Methoden sind zulässig:</p>
 <dl>
   <dt>GET</dt>
-  <dd>Daten für Endpunkt abrufen</dd>
+  <dd>Daten für Endpunkt abrufen
+  <pre><code>
+  async function get(payload) {
+    const url = '$apiUrl';
+    const response = await fetch(url);
+
+    if(!response.ok) {
+      throw new Error('HTTP error! status: ' + response.status');
+    }
+
+    const data = await response.json();
+    return data.resources;
+  }
+  </code></pre></dd>
   <dt>POST</dt>
-  <dd>Erstellen Sie eine neue Entität. Der Text enthält vollständige Details.</dd>
+  <dd>Erstellen Sie eine neue Resource. Der Text enthält vollständige Details.
+    <pre><code>
+      async function post(payload) {
+        const url = '$apiUrl';
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+    
+        if(!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status');
+        }
+    
+        const data = await response.json();
+        return data;
+      }
+      </code></pre>
+  </dd>
   <dt>PUT</dt>
-  <dd>Vorhandenen Eintrag für Endpunkt aktualisieren. Denken Sie daran, /{id} einzuschließen, der Inhalt sind die
-    geänderte Felder. </dd>
+  <dd>Vorhandenen Eintrag für Endpunkt aktualisieren. Das mit ID angegebene Objekt wird aktualisiert.
+    <pre><code>
+      async function put(id, payload) {
+        const url = '$apiUrl' + id;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+    
+        if(!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status');
+        }
+    
+        const data = await response.json();
+        return data;
+      }
+      </code></pre>
+    </dd>
   <dt>LÖSCHEN</dt>
-  <dd>Vorhandenen Eintrag für Endpunkt entfernen. Denken Sie daran, /{id}</dd> anzugeben
+  <dd>Vorhandenen Eintrag für Endpunkt entfernen. Das mit ID angegebene Objekt wird entfernt.
+    <pre><code>
+      async function delete(id) {
+        const url = '$apiUrl' + id;
+        const response = await fetch(url,
+          {
+            method: 'DELETE'
+          });
+    
+        if(!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status');
+        }
+    
+        const data = await response.json();
+        return data;
+      }
+      </code></pre></dd>
+    
+  </dd>
 </dl>
 
 <h2>Statuscodes</h2>
