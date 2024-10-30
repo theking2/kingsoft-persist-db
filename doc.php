@@ -39,19 +39,20 @@ $table_stat->execute();
 $table_stat->bindColumn( 1, $table_name );
 
 $all_tables = [];
+$url        = "http://" .  $_SERVER['HTTP_HOST'] . "/" . $class_name;
 
-echo file_get_contents( 'doc-header.html' );
+echo Format::load_parse_file( 'doc-header.html', [ 'apiUrl' => SETTINGS['api']['url'] ] );
 echo Html::wrap_tag( 'h1', "Endpoints" );
 echo '<dl>';
 
 
 while( $table_stat->fetch() ) {
-  doTable( $table_name );
+  doTable( $table_name, $url );
 }
 echo '</dl>';
 echo file_get_contents( 'doc-footer.html' );
 
-function doTable( $table_name )
+function doTable( string $table_name, string $url )
 {
   global $db, $type_list, $all_tables;
   
@@ -65,12 +66,11 @@ function doTable( $table_name )
   $class_name   = Format::snakeToPascal( $class_name );
 
   //check if included in the allwoed endpoints
-  if( !in_array( $class_name, SETTINGS['api']['endpoints'] ) ) return;
+  if( !in_array( $class_name, SETTINGS['api']['allowedendpoints'] ) ) return;
 
   $all_tables[] = $class_name;
 
   echo Html::wrap_tag( 'dt', $class_name );
-  $url        = "http://" .  $_SERVER['HTTP_HOST'] . "/" . $class_name;
   echo sprintf("<p>Retrieve: <a target=\"_blank\" href=\"%1\$s\">const url = \"%1\$s\"</a></p>", $url );
   echo sprintf("<p>Update: const url = \"%1\$s/{\$%2\$sId}\"</p>", $url, Format::snakeToCamel($class_name) );
   echo "<p>Note: views are not updatable</p>";
