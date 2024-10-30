@@ -6,13 +6,15 @@ use Kingsoft\Db\DatabaseException;
 
 trait DBPersistTrait
 {
-	/* #region helpers */
+	// MARK: helpers
 
 	/** _q - wrap fields in backticks */
 	private static function _q( string $field ): string
 	{
-		return '`' . $field . '`';
+		return "`$field`";
 	}
+
+	// MARK: Field conversion
 	/** 
 	 * wrapFieldArray - wrap field names in backticks and precede with table name
 	 *
@@ -102,7 +104,7 @@ trait DBPersistTrait
 			if( $field === static::getPrimaryKey() )
 				continue;
 			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
-				$result = $result && $stmt->bindParam( ':' . $field, $this->$field );
+				$result = $result && $stmt->bindParam( ":$field", $this->$field );
 			}
 		}
 		return $result;
@@ -123,15 +125,13 @@ trait DBPersistTrait
 			if( $this->isPrimaryKeyAutoIncrement() and $field === static::getPrimaryKey() )
 				continue;
 			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
-				$result = $result && $stmt->bindValue( ':' . $field, $this->_insert_buffer[] = $this->getFieldString( $field ) );
+				$result = $result && $stmt->bindValue( ":$field", $this->_insert_buffer[] = $this->getFieldString( $field ) );
 			}
 		}
 		return $result;
 	}
-	/* #endregion */
 
-	/* #region getters and setters */
-
+	// MARK: getters and setters
 	/**
 	 * __setter for all fields
 	 *
@@ -158,7 +158,7 @@ trait DBPersistTrait
 			// we assume a DateTime here 
 			return $value;
 		};
-		switch($this->getFields()[ $field ][0]) {
+		switch( $this->getFields()[ $field ][ 0 ] ) {
 			default:
 				$this->$field = $value;
 				break;
@@ -183,9 +183,8 @@ trait DBPersistTrait
 		}
 		$this->_dirty[] = $field;
 	}
-	/* #endregion */
 
-	/* #region construction */
+	// MARK: construction
 	/**
 	 * Constructor calls the parent constructor to initialize the field values
 	 * @param mixed $param The primary key value or an array of field values
@@ -198,9 +197,8 @@ trait DBPersistTrait
 		$this->_order = $order;
 		parent::__construct( $param );
 	}
-	/* #endregion */
 
-	/* #region CRUD */
+	// MARK: CRUD insert/find
 
 	/**
 	 * create – create a new record in the \Kingsoft\Db\Database or update an existing one
@@ -216,11 +214,9 @@ trait DBPersistTrait
 
 	/**
 	 * thaw – fetch a record from the \Kingsoft\Db\Database by key
-	 * this assumes keys are singel and ints!!
 	 *
-	 * @param  int $id
+	 * @param  $id key value to use
 	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return object
 	 */
 	public function thaw( mixed $id ): null|\Kingsoft\Persist\IPersist
 	{
@@ -243,7 +239,7 @@ trait DBPersistTrait
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt->fetch() ) {
-				switch($this->getFields()[ $this->getPrimaryKey()][0]) {
+				switch( $this->getFields()[ $this->getPrimaryKey()][ 0 ] ) {
 					case 'int':
 						$this->{$this->getPrimaryKey()} = (int) $id;
 						break;
@@ -265,7 +261,7 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[2]
+				$errorInfo[ 2 ]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
@@ -277,7 +273,6 @@ trait DBPersistTrait
 	 * Apart from that the ID might be not an autoincrement field but string or a UUID
 	 * sql statement could occur yielding the wrong ID to be set.
 	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return bool
 	 */
 	protected function insert(): bool
 	{
@@ -303,10 +298,11 @@ trait DBPersistTrait
 			);
 		}
 	}
+
+	// MARK: Update
 	/**
 	 * Synchronize changes in \Kingsoft\Db\Database
 	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return bool
 	 */
 	protected function update(): bool
 	{
@@ -327,12 +323,13 @@ trait DBPersistTrait
 			);
 		}
 	}
+
+	// MARK: Delete
 	/**
 	 * Datensatz $this->ID aus der Tabelle entfernen
 	 * If $constraint is set than use this to select the records to delete
 	 * If $constraint is not set than delete thre record by ID
 	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return bool
 	 */
 	public function delete(): bool
 	{
@@ -353,16 +350,13 @@ trait DBPersistTrait
 			);
 		}
 	}
-	/* #endregion CRUD */
 
-	/* #region Traversal */
+	// MARK: Traversal
 
 	/**
-			 * find – find records in the \Kingsoft\Db\Database
-
-			 * @throws \Kingsoft\Db\DatabaseException
-			 * @return null|object
-			 */
+	 * Find records in the \Kingsoft\Db\Database
+	 * @throws \Kingsoft\Db\DatabaseException
+	 */
 	public static function find( ?array $where = [], ?array $order = [] ): null|static
 	{
 		$obj = new static( where: $where, order: $order );
@@ -384,11 +378,8 @@ trait DBPersistTrait
 	private ?\PDOStatement $current_statement = null;
 
 	/**
-	 * findFirst – find the first record in the \Kingsoft\Db\Database
-	 * @uses _where
-	 * @uses _order
+	 * Find the first record in the \Kingsoft\Db\Database
 	 * @throws \Kingsoft\Db\DatabaseException
-	 * @return void
 	 */
 	function findFirst()
 	{
@@ -429,14 +420,13 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[2]
+				$errorInfo[ 2 ]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
 	}
 	/**
-	 * function findNext navigate to next record if available
-	 * @return bool
+	 * Navigate to next record if available, return false if no more records are available
 	 */
 	public function findNext(): bool
 	{
@@ -457,8 +447,9 @@ trait DBPersistTrait
 	}
 
 	/**
-	 * Generator findAll() – find all records in the \Kingsoft\Db\Database
-	 * @return \Generator 
+	 * Find all records in the \Kingsoft\Db\Database and return a generator
+	 * @param $where array of where clauses, see getWhere()
+	 * @param $order array of order clauses, see getOrder()
 	 * @throws \Kingsoft\Db\DatabaseException 
 	 */
 	public static function findAll( ?array $where = [], ?array $order = [] ): \Generator
@@ -473,12 +464,11 @@ trait DBPersistTrait
 		}
 	}
 
-	/* #endregion Traversal */
+	// MARK: Sorting
 
-	/* #region Order */
 	/**
-	 * @var array $_order contains the order by clause
-	 * @example ['id' => 'asc', 'name' => 'desc']
+	 * Specify the order of the records and set $this->_order
+	 * @param $order contains the order by clause for example ['id' => 'asc', 'name' => 'desc']
 	 * @return object
 	 */
 	public function setOrder( array $order ): object
@@ -505,11 +495,10 @@ trait DBPersistTrait
 		return '';
 	}
 
-	/* #endregion Order */
-
-	/* #region Where */
+	// MARK: Where
 	/**
-	 * array of fields/values to select by, the operator are the first character of the value
+	 * Set the where clause for the select statement and set $this->_where
+	 * @param  $where array of fields/values to select by, the operator is the first character of the value
 	 * * \=	equal
 	 * * !	not equal
 	 * * \*	like
@@ -518,8 +507,7 @@ trait DBPersistTrait
 	 * * &	bitwise and
 	 * * |	bitwise or
 	 * * ^	bitwise xor
-	 * * ~	IN value array
-	 * @param  mixed $where
+	 * * ~	IN value array (comma separated)
 	 * @return \Kingsoft\Persist\Base
 	 */
 	public function setWhere( array $where ): \Kingsoft\Persist\Base
@@ -533,7 +521,7 @@ trait DBPersistTrait
 		return $this;
 	}
 	/**
-	 * Construct sql where clause by example, the operators are
+	 * Construct sql where clause by example using the _where array set by setWhere
 	 *
 	 * @return string SQL where clause string
 	 */
@@ -565,7 +553,7 @@ trait DBPersistTrait
 					$where[] = "`$fieldname` IN ($in_section)";
 				} else {
 
-					switch($operator) {
+					switch( $operator ) {
 						case '!':
 							$operator = '<>';
 							break;
@@ -594,9 +582,9 @@ trait DBPersistTrait
 		return ' where ' . $where;
 	}
 	/**
-	 * Bind the set values to the statement
+	 * Bind the set values to the statement for the where clause tthe fields set by setWhere()
 	 * 
-	 * @param \PDOStatement $stmt - 
+	 * @param \PDOStatement $stmt statement to bind to
 	 * @return bool
 	 */
 	private function bindWhere( \PDOStatement $stmt ): bool
@@ -615,18 +603,13 @@ trait DBPersistTrait
 		return $result;
 	}
 
-	/* #endregion */
-
-	/* #region Cached Statements */
+	// MARK: Prepared Statements
 
 	/** @var \PDOStatement $insert_statement bind fields to values */
 	private $insert_statement = null;
 	/**
-	 * Create Statement, bind to object members and save
-	 * return cached select statement
-	 * Result columns are bind to the fields
-	 * 
-	 * @return \PDOStatement 
+	 * Create insert statement
+	 * Fields are bound to the object members, only dirty fields are bound
 	 */
 	protected function getInsertStatement(): \PDOStatement
 	{
@@ -657,8 +640,7 @@ trait DBPersistTrait
 		return $this->insert_statement;
 	}
 	/**
-	 * Create Statement, bind to object members and save
-	 * return cached select statement
+	 * Create Statement
 	 * Result columns are bind to the fields
 	 * 
 	 * @return \PDOStatement 
@@ -720,5 +702,4 @@ trait DBPersistTrait
 		}
 		return $this->delete_statement;
 	}
-	/* #endregion */
 }
