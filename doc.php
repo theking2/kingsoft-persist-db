@@ -64,7 +64,8 @@ function doTable( $table_name )
   $class_name   = str_replace( '-', '_', $table_name );
   $class_name   = Format::snakeToPascal( $class_name );
 
-  $file_name    = DISCOVERED_CLASSFOLDER . $class_name . ".php";
+  //check if included in the allwoed endpoints
+  if( !in_array( $class_name, SETTINGS['api']['endpoints'] ) ) return;
 
   $all_tables[] = $class_name;
 
