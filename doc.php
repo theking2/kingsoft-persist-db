@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
-define( 'SETTINGS_FILE', $_SERVER['DOCUMENT_ROOT'] . '/config/settings.ini' );
-define( 'ROOT', $_SERVER['DOCUMENT_ROOT'] . '/' );
+define( 'SETTINGS_FILE', $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/settings.ini' );
+define( 'ROOT', $_SERVER[ 'DOCUMENT_ROOT' ] . '/' );
 require ROOT . 'vendor/kingsoft/utils/settings.inc.php';
 require ROOT . 'vendor/autoload.php';
 
 if( !defined( '_NAMESPACE' ) ) {
-  $configuredNamespace = str_replace( '\\', '/', SETTINGS['api']['namespace'] );
+  $configuredNamespace = str_replace( '\\', '/', SETTINGS[ 'api' ][ 'namespace' ] );
   $parts               = explode( '/', $configuredNamespace );
   $parts               = array_map( 'ucfirst', $parts );
   $namespace           = implode( '\\', $parts );
@@ -22,11 +22,11 @@ use \Kingsoft\Utils\Format as Format;
  * Map SQL domains to php types
  */
 $type_list = [ 
-  'int' => [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
-  'float' => [ 'float', 'double', 'real' ],
-  'string' => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum', 'set' ],
-  'bool' => [ 'bool', 'boolean' ],
-  'Date' => [ 'date' ],
+  'int'       => [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
+  'float'     => [ 'float', 'double', 'real' ],
+  'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum', 'set' ],
+  'bool'      => [ 'bool', 'boolean' ],
+  'Date'      => [ 'date' ],
   '\DateTime' => [ 'datetime' ],
 ];
 
@@ -39,9 +39,9 @@ $table_stat->execute();
 $table_stat->bindColumn( 1, $table_name );
 
 $all_tables = [];
-$url        = "http://" .  $_SERVER['HTTP_HOST'] . "/" . $class_name;
+$url        = "http://" . $_SERVER[ 'HTTP_HOST' ];
 
-echo Format::load_parse_file( 'doc-header.html', [ 'apiUrl' => SETTINGS['api']['url'] ] );
+echo Format::load_parse_file( 'doc-header.html', [ 'apiUrl' => $url ] );
 echo Html::wrap_tag( 'h1', "Endpoints" );
 echo '<dl>';
 
@@ -50,29 +50,32 @@ while( $table_stat->fetch() ) {
   doTable( $table_name, $url );
 }
 echo '</dl>';
-echo file_get_contents( 'doc-footer.html' );
+echo Format::load_parse_file( 'doc-footer.html', [ 'apiUrl' => $url ] );
+
 
 function doTable( string $table_name, string $url )
 {
   global $db, $type_list, $all_tables;
-  
-  $fieldName = "";
-  $fieldType = "";
-  $fieldKey  = "";
+
+  $fieldName  = "";
+  $fieldType  = "";
+  $fieldKey   = "";
   $fieldExtra = "";
 
   //Make filename PSR-4 compliant
-  $class_name   = str_replace( '-', '_', $table_name );
-  $class_name   = Format::snakeToPascal( $class_name );
+  $class_name = str_replace( '-', '_', $table_name );
+  $class_name = Format::snakeToPascal( $class_name );
 
   //check if included in the allwoed endpoints
-  if( !in_array( $class_name, SETTINGS['api']['allowedendpoints'] ) ) return;
+  if( !in_array( $class_name, SETTINGS[ 'api' ][ 'allowedendpoints' ] ) )
+    return;
 
   $all_tables[] = $class_name;
+  $url .= "/" . $class_name;
 
   echo Html::wrap_tag( 'dt', $class_name );
-  echo sprintf("<p>Retrieve: <a target=\"_blank\" href=\"%1\$s\">const url = \"%1\$s\"</a></p>", $url );
-  echo sprintf("<p>Update: const url = \"%1\$s/{\$%2\$sId}\"</p>", $url, Format::snakeToCamel($class_name) );
+  echo sprintf( "<p>Retrieve: <a target=\"_blank\" href=\"%1\$s\">const url = \"%1\$s\"</a></p>", $url );
+  echo sprintf( "<p>Update: const url = \"%1\$s/{\$%2\$sId}\"</p>", $url, Format::snakeToCamel( $class_name ) );
   echo "<p>Note: views are not updatable</p>";
 
   $sql       = "show columns from `$table_name`";
@@ -87,7 +90,7 @@ function doTable( string $table_name, string $url )
 
   $cols = [];
 
-  $type_pattern = '/(\w*)(\((\d*)\))?(\s(\w*))?/';
+  $type_pattern     = '/(\w*)(\((\d*)\))?(\s(\w*))?/';
   $hasAutoIncrement = false;
   while( $cols_stat->fetch() ) {
     if( $fieldKey === 'PRI' ) {
@@ -96,21 +99,22 @@ function doTable( string $table_name, string $url )
     }
     preg_match( $type_pattern, $fieldType, $desc );
     foreach( $type_list as $php_type => $db_types ) {
-      if( in_array( $desc[1], $db_types ) ) {
-        $cols[ $fieldName ] = [ $php_type, $desc[3] ?? 0, $desc[5] ?? '' ];
+      if( in_array( $desc[ 1 ], $db_types ) ) {
+        $cols[ $fieldName ] = [ $php_type, $desc[ 3 ] ?? 0, $desc[ 5 ] ?? '' ];
         break;
       }
     }
   }
   echo '<dd>';
-  echo Html::wrap_tag( 'p', "key: " . ($keyname ?? 'none') . " is auto increment: " . ($hasAutoIncrement?'ja':'nein') );
+  echo Html::wrap_tag( 'p', "key: " . ( $keyname ?? 'none' ) . " is auto increment: " . ( $hasAutoIncrement ? 'ja' : 'nein' ) );
   echo Html::wrap_tag( 'p', "Fields:" );
   echo '<pre>';
-  printf("%s: {\n", Format::snakeToCamel($table_name));
+  printf( "%s: {\n", Format::snakeToCamel( $table_name ) );
   foreach( $cols as $fieldName => $fieldDescription ) {
-	  $width = 20 - mb_strlen($fieldName);
-	  if( ($fieldName === $keyname) && $hasAutoIncrement) continue;
-    printf( "\t%s: %-{$width}s // type: %s\n", $fieldName,  $fieldDescription[0]=='int'?"0,":'"",', $fieldDescription[0] );
+    $width = 20 - mb_strlen( $fieldName );
+    if( ( $fieldName === $keyname ) && $hasAutoIncrement )
+      continue;
+    printf( "\t%s: %-{$width}s // type: %s\n", $fieldName, $fieldDescription[ 0 ] == 'int' ? "0," : '"",', $fieldDescription[ 0 ] );
   }
   echo '}</pre></dd>';
 }
