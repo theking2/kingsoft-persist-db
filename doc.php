@@ -46,7 +46,6 @@ echo '<dl>';
 
 
 while( $table_stat->fetch() ) {
-
   doTable( $table_name );
 }
 echo '</dl>';
