@@ -1,9 +1,7 @@
 <?php declare(strict_types=1);
-define( 'SETTINGS_FILE', $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/settings.ini' );
-define( 'ROOT', $_SERVER[ 'DOCUMENT_ROOT' ] . '/' );
-require ROOT . 'vendor/kingsoft/utils/settings.inc.php';
-require ROOT . 'vendor/autoload.php';
+require_once '../config.php';
 
+// construct the namespace and class folder
 if( !defined( '_NAMESPACE' ) ) {
   $configuredNamespace = str_replace( '\\', '/', SETTINGS[ 'api' ][ 'namespace' ] );
   $parts               = explode( '/', $configuredNamespace );
@@ -11,6 +9,7 @@ if( !defined( '_NAMESPACE' ) ) {
   $namespace           = implode( '\\', $parts );
   define( '_NAMESPACE', $namespace );
 }
+
 define( 'DISCOVERED_CLASSFOLDER', str_replace( '\\', '/', ROOT . 'discovered/' . _NAMESPACE . '/' ) );
 if( !is_dir( DISCOVERED_CLASSFOLDER ) )
   mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
@@ -20,11 +19,14 @@ use \Kingsoft\Utils\Format as Format;
 
 /**
  * Map SQL domains to php types
+ * Be aware that this is a very simple mapping and does not cover all possible types
+ * PHP does not support unsigned integers, so they are all treated as signed
+ * PHP does not support decimals, so they are all treated as string use bc math functions for calculations
  */
 $type_list = [ 
   'int'       => [ 'int', 'integer', 'smallint', 'tinyint', 'bigint' ],
   'float'     => [ 'float', 'double', 'real' ],
-  'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum', 'set' ],
+  'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'decimal', 'binary', 'varbinary', 'enum', 'set' ],
   'bool'      => [ 'bool', 'boolean' ],
   'Date'      => [ 'date' ],
   '\DateTime' => [ 'datetime' ],

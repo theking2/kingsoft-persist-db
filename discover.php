@@ -1,8 +1,5 @@
 <?php declare(strict_types=1);
-define( 'SETTINGS_FILE', $_SERVER['DOCUMENT_ROOT'] . '/config/settings.ini' );
-define( 'ROOT', $_SERVER['DOCUMENT_ROOT'] . '/' );
-require ROOT . 'vendor/kingsoft/utils/settings.inc.php';
-require ROOT . 'vendor/autoload.php';
+require_once '../config.php';
 
 if( !defined( '_NAMESPACE' ) ) {
   $configuredNamespace = str_replace( '\\', '/', SETTINGS['api']['namespace'] );
@@ -24,7 +21,7 @@ use \Kingsoft\Utils\Format as Format;
 $type_list = [ 
   'int'       => [ 'int', 'integer', 'mediumint', 'smallint', 'tinyint', 'bigint' ],
   'float'     => [ 'float', 'double', 'real' ],
-  'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'enum' ],
+  'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'decimal', 'binary', 'varbinary', 'enum' ],
   'bool'      => [ 'bool', 'boolean' ],
   'Date'      => [ 'date' ],
   '\DateTime' => [ 'datetime' ],
