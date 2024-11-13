@@ -5,6 +5,7 @@ This implementation of the abstract [`Persist/Base`](https://github.com/theking2
 ## Setup
 
 ### config.php in root
+
 Minimal config file
 ```php
 // Database Configuration
@@ -19,6 +20,8 @@ define( 'SETTINGS', [
     'db' => $db,
 ]);
 ```
+
+## Discover
 
 To create the PHP proxies to the tables and views create a `discover.php` in the root like:
 
@@ -46,6 +49,27 @@ This will create a folder `discovered` in the root with subfolders based on name
 ```sh
 composer dump-autoload
 ```
+
+## Document
+To create a API documentation page
+
+```php
+<?php declare(strict_types=1);
+
+require_once 'config.php';
+require 'vendor/autoload.php';
+
+use \Kingsoft\Persist\Db\Bootstrap;
+$bootstrap = new Bootstrap( 'Kingsoft\LinkQr' );
+$bootstrap->document( 
+    ROOT.'doc-header.html', 
+    ROOT.'doc-footer.html'
+);
+```
+
+Copy the template files to the root.
+
+## Configuration
 
 The `allowedEndPoints` array can be used for a [`persist-rest`](https://github.com/theking2/kingsoft-persist-rest) settings section. 
 
