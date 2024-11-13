@@ -4,13 +4,41 @@ This implementation of the abstract [`Persist/Base`](https://github.com/theking2
 
 ## Setup
 
-To create the PHP proxies to the tables and views use
-
-```url
-https://example.com/vendor/kingsoft/persist-db/discover.php
+### config.php in root
+Minimal config file
+```php
+// Database Configuration
+$db = [
+    'hostname' => 'localhost',
+    'database' => '',
+    'username' => '',
+    'password' => ''
+];
+// Output the configuration as an array (if needed for debugging)
+define( 'SETTINGS', [
+    'db' => $db,
+]);
 ```
 
-which only works if the proper global SETTINGS array is available. (See [`Kingsoft\Utils`](https://github.com/theking2/kingsoft-utils). Specifically it requires the proper DB settings and a `namespace=` setting under `[api]` to generate the classses in the required PHP namespace. The location can later be added to the `composer.json` file for autoload. 
+To create the PHP proxies to the tables and views create a `discover.php` in the root like:
+
+```php
+<?php declare(strict_types=1);
+
+require_once 'config.php';
+require 'vendor/autoload.php';
+
+use \Kingsoft\Persist\Db\Bootstrap;
+$bootstrap = new Bootstrap( 'Realm\Namespace' );
+$bootstrap->discover();
+```
+providing the proper settings in `config.php` and run it
+
+```url
+https://example.com/discover.php
+```
+
+which only works if the proper SETTINGS array is available. (See [`Kingsoft\Utils`](https://github.com/theking2/kingsoft-utils). Specifically it requires the proper DB settings and a `namespace=` setting under `[api]` to generate the classses in the required PHP namespace. The location can later be added to the `composer.json` file for autoload. 
 If a PK is not auto increment, a string is generated with bin2hex(random_bytes(12)) with the tablename- as prefix. The atrribute should be larger than CHAR(str_len(tablename) + 1 + 24).
 
 This will create a folder `discovered` in the root with subfolders based on namespace in the settings file. It also responds with a page listing what is available. To have the proxies autoloaded add the psr-4 section to your `composer.json`and run 
