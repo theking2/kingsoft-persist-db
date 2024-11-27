@@ -114,7 +114,7 @@ class Bootstrap
 
 		fwrite( $fh, " */\n" );
 
-		fprintf( $fh, "class %s\n", $class_name );
+		fprintf( $fh, "final class %s\n", $class_name );
 		fwrite( $fh, "\textends \\Kingsoft\\Persist\\Base\n" );
 		fwrite( $fh, "\timplements \\Kingsoft\\Persist\\IPersist\n{\n", );
 
