@@ -114,8 +114,10 @@ class Bootstrap
 
 		fwrite( $fh, " */\n" );
 
-		fwrite( $fh, "\timplements \\Kingsoft\\Persist\\IPersist\n{\n" );
+		fprintf( $fh, "class %s\n", $class_name );
+		fwrite( $fh, "\textends \\Kingsoft\\Persist\\Base\n" );
 		fwrite( $fh, "\timplements \\Kingsoft\\Persist\\IPersist\n{\n", );
+
 		fwrite( $fh, "\tuse \\Kingsoft\Persist\Db\\DBPersistTrait;\n\n" );
 
 		// create the set constants
@@ -201,7 +203,7 @@ class Bootstrap
 		echo ',
   "autoload": {
     "psr-4": {
-      "' . addslashes( $this->phpNamespace . "\\" ) . '": "' . $this->classFolder . '"
+      "' . addslashes( $this->phpNamespace . "\\" ) . '": "' . str_replace( '\\', '/', './discovered/' . $this->phpNamespace . '/' ) . '"
     }
   }
 ';
@@ -210,10 +212,6 @@ class Bootstrap
 	// MARK: - Documentation
 	public function document(string $headerTemplateFilename, string $footerTemplateFilename) 
 	{
-		$this->classFolder = str_replace( '\\', '/', ROOT . 'discovered/' . $this->phpNamespace . '/' );
-		if( !is_dir( $this->classFolder ) )
-			mkdir( $this->classFolder, 0755, true );
-
 		$this->db = \Kingsoft\Db\Database::getConnection();
 
 		$sql        = "show tables";
