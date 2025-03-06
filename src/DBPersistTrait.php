@@ -280,6 +280,10 @@ trait DBPersistTrait
 			if( !$this->isPrimaryKeyAutoIncrement() ) {
 				$this->{$this->getPrimaryKey()} = $this->nextPrimaryKey();
 			}
+			
+			if( method_exists( $this, 'initialize') ) {
+				$this->initialize();
+			}
 
 			if( $this->getInsertStatement()->execute() ) {
 				if( $this->isPrimaryKeyAutoIncrement() ) {
