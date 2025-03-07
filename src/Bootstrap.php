@@ -5,13 +5,13 @@ use \Kingsoft\Utils\Html as Html;
 use \Kingsoft\Utils\Format as Format;
 
 
-class Bootstrap
+final class Bootstrap
 {
 	// MARK: - Constants
 	/**
 	 * Map SQL domains to php types
 	 */
-	const
+	private const
 		TYPELIST = [ 
 			'int'       => [ 'int', 'integer', 'mediumint', 'smallint', 'tinyint', 'bigint' ],
 			'float'     => [ 'float', 'double', 'real' ],
@@ -19,11 +19,11 @@ class Bootstrap
 			'bool'      => [ 'bool', 'boolean' ],
 			'Date'      => [ 'date' ],
 			'\DateTime' => [ 'datetime' ],
-			'set'       => [ 'set' ]
+		//	'set'       => [ 'set' ]
 		];
 	// MARK: - Properties
-	readonly private string $phpNamespace;
-	readonly private string $classFolder;
+	private readonly string $phpNamespace;
+	private readonly string $classFolder;
 	private \PDO            $db;
 	protected array         $all_tables;
 	// MARK: - Initializer
@@ -57,6 +57,7 @@ class Bootstrap
 		$this->writeHtml();
 	}
 
+	// #MARK: - private functions
 	private function doTable( string $table_name )
 	{
 		//Make filename PSR-4 compliant
@@ -146,28 +147,28 @@ class Bootstrap
 
 		fwrite( $fh, "\n\t// Persist functions\n" );
 		if( isset( $keyname ) ) {
-			fprintf( $fh, "\tstatic public function getPrimaryKey():string { return '%s'; }\n", $keyname );
-			fprintf( $fh, "\tstatic public function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
+			fprintf( $fh, "\tpublic static function getPrimaryKey():string { return '%s'; }\n", $keyname );
+			fprintf( $fh, "\tpublic static function isPrimaryKeyAutoIncrement():bool { return %s; }\n", $hasAutoIncrement ? 'true' : 'false' );
 			if( !$hasAutoIncrement ) {
 				switch( $cols[ $keyname ][ 0 ] ) {
 					case 'int':
-						fprintf( $fh, "\tstatic public function nextPrimaryKey():int { return 0; }\n" );
+						fprintf( $fh, "\tpublic static function nextPrimaryKey():int { return 0; }\n" );
 						break;
 					case 'string':
-						fprintf( $fh, "\tstatic public function nextPrimaryKey():string { return \"%s-\" . bin2hex(random_bytes(12)); }\n", $table_name );
+						fprintf( $fh, "\tpublic static function nextPrimaryKey():string { return \"%s-\" . bin2hex(random_bytes(12)); }\n", $table_name );
 						break;
 					default:
-						fprintf( $fh, "\t//static public function nextPrimaryKey():string { return ''; }\n" );
+						fprintf( $fh, "\tpublic static function nextPrimaryKey():string { return ''; }\n" );
 						break;
 				}
 			}
 		} else {
 			// No primary key, so we need to override the default
-			fprintf( $fh, "\t//static public function getPrimaryKey():string { return ''; }\n" );
-			fprintf( $fh, "\t//static public function isPrimaryKeyAutoIncrement():bool { return false; }\n" );
+			fprintf( $fh, "\tpublic static function getPrimaryKey():string { return ''; }\n" );
+			fprintf( $fh, "\tpublic static function isPrimaryKeyAutoIncrement():bool { return false; }\n" );
 		}
-		fprintf( $fh, "\tstatic public function getTableName():string { return '`%s`'; }\n", $table_name );
-		fwrite( $fh, "\tstatic public function getFields():array {\n" );
+		fprintf( $fh, "\tpublic static function getTableName():string { return '`%s`'; }\n", $table_name );
+		fwrite( $fh, "\tpublic static function getFields():array {\n" );
 		fwrite( $fh, "\t\treturn [\n" );
 		foreach( $cols as $fieldName => $fieldDescription ) {
 			fprintf( $fh, "\t\t\t%-20s => ['%s', %d ], \t\t//\t%s\n", "'$fieldName'", $fieldDescription[ 0 ], $fieldDescription[ 1 ], $fieldDescription[ 3 ] );
