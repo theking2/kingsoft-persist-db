@@ -125,7 +125,12 @@ trait DBPersistTrait
 			if( $this->isPrimaryKeyAutoIncrement() and $field === static::getPrimaryKey() )
 				continue;
 			if( $ignore_dirty or in_array( $field, $this->_dirty ) ) {
-				$result = $result && $stmt->bindValue( ":$field", $this->_insert_buffer[] = $this->getFieldString( $field ) );
+				if( null === $this->$field ) {
+					$result = $result && $stmt->bindValue( ":$field", null, \PDO::PARAM_NULL );
+				} else {
+					// we assume a string here
+					$result = $result && $stmt->bindValue( ":$field", $this->_insert_buffer[] = $this->getFieldString( $field ) );
+				}
 			}
 		}
 		return $result;
@@ -280,7 +285,7 @@ trait DBPersistTrait
 			if( !$this->isPrimaryKeyAutoIncrement() ) {
 				$this->{$this->getPrimaryKey()} = $this->nextPrimaryKey();
 			}
-			
+
 			if( method_exists( $this, 'initialize') ) {
 				$this->initialize();
 			}
