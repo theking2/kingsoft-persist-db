@@ -154,24 +154,23 @@ trait DBPersistTrait
 		/** convert to DateTime type */
 		$convert_date = fn( null|string|\DateTime|\DateTimeImmutable $value ): ?\DateTime =>
 			match ( true ) {
-				default                              => throw new \InvalidArgumentException( 'Invalid date value' ),
-				null === $value                      => null,
-				$value instanceof \DateTime          => $value,
-				$value instanceof \DateTimeImmutable => \DateTime::createFromImmutable( $value ),
-				is_string( $value ) and
-					$value === '0000-00-00 00:00:00'   => null,
-				is_string( $value )                  => new \DateTime( $value ),
+				default                                                  => throw new \InvalidArgumentException( 'Invalid date value' ),
+				null === $value                                          => null,
+				$value instanceof \DateTime                              => $value,
+				$value instanceof \DateTimeImmutable                     => \DateTime::createFromImmutable( $value ),
+				is_string( $value ) and $value === '0000-00-00 00:00:00' => null,
+				is_string( $value )                                      => new \DateTime( $value ),
 			};
 
-		$this->$field = match ( $this->getFields()[ $field ][0] ) {
-			default       => $value, // Default case
+		$this->$field   = match ( $this->getFields()[ $field ][0] ) {
+			default    => $value, // Default case
 			'\DateTime',
 			'DateTime',
-			'Date'        => $convert_date( $value ),
+			'Date'     => $convert_date( $value ),
 			'int',
-			'unsigned'    => (int) $value, // Handle both int and unsigned as integers
-			'float'       => (float) $value,
-			'bool'        => (bool) $value,
+			'unsigned' => (int) $value, // Handle both int and unsigned as integers
+			'float'    => (float) $value,
+			'bool'     => (bool) $value,
 		};
 		$this->_dirty[] = $field;
 	}
@@ -231,7 +230,7 @@ trait DBPersistTrait
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt->fetch() ) {
-				switch($this->getFields()[ $this->getPrimaryKey()][0]) {
+				switch( $this->getFields()[ $this->getPrimaryKey()][0] ) {
 					case 'int':
 						$this->{$this->getPrimaryKey()} = (int) $id;
 						break;
@@ -549,7 +548,7 @@ trait DBPersistTrait
 					$where[] = "`$fieldname` IN ($in_section)";
 				} else {
 
-					switch($operator) {
+					switch( $operator ) {
 						case '!':
 							$operator = '<>';
 							break;
