@@ -152,23 +152,32 @@ trait DBPersistTrait
 		}
 		/** convert to DateTime type */
 		$convert_date = function (string|\DateTime|\DateTimeImmutable $value): ?\DateTime {
-			if( is_null( $value ) )
+
+			// check if value is null
+			if( null === $value ) {
 				return null;
-			if( is_a( $value, 'string' ) ) {
-				if( $d = new \DateTime( $value ) ) {
-					return $d;
-				}
-				throw new \InvalidArgumentException( "Invalid date format: $value" );
-			} elseif( is_a( $value, 'DateTime' ) ) {
+			}
+
+			// date is already a DateTime
+			if( is_a( $value, 'DateTime' ) ) {
 				return $value;
-			} elseif( is_a( $value, 'DateTimeImmutable' ) ) {
-				// convert to DateTime
+			}
+
+			// date is a DateTimeImmutable, convert it to DateTime
+			if( is_a( $value, 'DateTimeImmutable' ) ) {
 				return \DateTime::createFromImmutable( $value );
 			}
-			// we assume a DateTime here 
-			return $value;
+
+			// date is database missing, convert to null
+			if( $value === '0000-00-00 00:00:00' ) {
+				return null;
+			}
+
+			// date is a string, convert to DateTime
+			// this might throw an exception if the string is not a valid date
+			return new \DateTime( $value );
 		};
-		switch( $this->getFields()[ $field ][ 0 ] ) {
+		switch($this->getFields()[ $field ][0]) {
 			default:
 				$this->$field = $value;
 				break;
@@ -248,7 +257,7 @@ trait DBPersistTrait
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt->fetch() ) {
-				switch( $this->getFields()[ $this->getPrimaryKey()][ 0 ] ) {
+				switch($this->getFields()[ $this->getPrimaryKey()][0]) {
 					case 'int':
 						$this->{$this->getPrimaryKey()} = (int) $id;
 						break;
@@ -270,7 +279,7 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[ 2 ]
+				$errorInfo[2]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
@@ -290,7 +299,7 @@ trait DBPersistTrait
 				$this->{$this->getPrimaryKey()} = $this->nextPrimaryKey();
 			}
 
-			if( method_exists( $this, 'initialize') ) {
+			if( method_exists( $this, 'initialize' ) ) {
 				$this->initialize();
 			}
 
@@ -433,7 +442,7 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[ 2 ]
+				$errorInfo[2]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
@@ -566,7 +575,7 @@ trait DBPersistTrait
 					$where[] = "`$fieldname` IN ($in_section)";
 				} else {
 
-					switch( $operator ) {
+					switch($operator) {
 						case '!':
 							$operator = '<>';
 							break;
