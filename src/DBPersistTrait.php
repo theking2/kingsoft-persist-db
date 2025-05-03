@@ -150,55 +150,29 @@ trait DBPersistTrait
 		if( !$this->_isField( $field ) ) {
 			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
 		}
+
 		/** convert to DateTime type */
-		$convert_date = function (null|string|\DateTime|\DateTimeImmutable $value): ?\DateTime {
+		$convert_date = fn( null|string|\DateTime|\DateTimeImmutable $value ): ?\DateTime =>
+			match ( true ) {
+				default                              => throw new \InvalidArgumentException( 'Invalid date value' ),
+				null === $value                      => null,
+				$value instanceof \DateTime          => $value,
+				$value instanceof \DateTimeImmutable => \DateTime::createFromImmutable( $value ),
+				is_string( $value ) and
+					$value === '0000-00-00 00:00:00'   => null,
+				is_string( $value )                  => new \DateTime( $value ),
+			};
 
-			// check if value is null
-			if( null === $value ) {
-				return null;
-			}
-
-			// date is already a DateTime
-			if( is_a( $value, 'DateTime' ) ) {
-				return $value;
-			}
-
-			// date is a DateTimeImmutable, convert it to DateTime
-			if( is_a( $value, 'DateTimeImmutable' ) ) {
-				return \DateTime::createFromImmutable( $value );
-			}
-
-			// date is database missing, convert to null
-			if( $value === '0000-00-00 00:00:00' ) {
-				return null;
-			}
-
-			// date is a string, convert to DateTime
-			// this might throw an exception if the string is not a valid date
-			return new \DateTime( $value );
+		$this->$field = match ( $this->getFields()[ $field ][0] ) {
+			default       => $value, // Default case
+			'\DateTime',
+			'DateTime',
+			'Date'        => $convert_date( $value ),
+			'int',
+			'unsigned'    => (int) $value, // Handle both int and unsigned as integers
+			'float'       => (float) $value,
+			'bool'        => (bool) $value,
 		};
-		switch($this->getFields()[ $field ][0]) {
-			default:
-				$this->$field = $value;
-				break;
-			case '\DateTime': //Fallthrough, make deprecated
-			case 'DateTime': //Fallthrough 
-			case 'Date':
-				$this->$field = $convert_date( $value );
-				break;
-			case 'int':
-				$this->$field = (int) $value;
-				break;
-			case 'float':
-				$this->$field = (float) $value;
-				break;
-			case 'bool':
-				$this->$field = (bool) $value;
-				break;
-			case 'unsigned':
-				$this->$field = (int) $value;
-				break;
-		}
 		$this->_dirty[] = $field;
 	}
 
