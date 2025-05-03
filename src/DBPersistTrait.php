@@ -144,21 +144,26 @@ trait DBPersistTrait
 	 * @param  mixed $value
 	 * @return void
 	 */
-	public function __set( string $field, $value ): void
+	public function __set( string $field, mixed $value ): void
 	{
 		/** check if field exists */
 		if( !$this->_isField( $field ) ) {
 			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
 		}
 		/** convert to DateTime type */
-		$convert_date = function ($value, $format): ?\DateTime {
+		$convert_date = function (string|\DateTime|\DateTimeImmutable $value, $format): ?\DateTime {
 			if( is_null( $value ) )
 				return null;
-			if( gettype( $value ) === 'string' ) {
-				if( $d = \DateTime::createFromFormat( $format, $value ) ) {
+			if( is_a( $value, 'string' ) ) {
+				if( $d = new \DateTime( $value ) ) {
 					return $d;
 				}
 				throw new \InvalidArgumentException( "Invalid date format: $value" );
+			} elseif( is_a( $value, 'DateTime' ) ) {
+				return $value;
+			} elseif( is_a( $value, 'DateTimeImmutable' ) ) {
+				// convert to DateTime
+				return \DateTime::createFromImmutable( $value );
 			}
 			// we assume a DateTime here 
 			return $value;
@@ -167,11 +172,10 @@ trait DBPersistTrait
 			default:
 				$this->$field = $value;
 				break;
-			case '\DateTime':
-				$this->$field = $convert_date( $value, 'Y-m-d H:i:s' );
-				break;
+			case '\DateTime': //Fallthrough, make deprecated
+			case 'DateTime': //Fallthrough 
 			case 'Date':
-				$this->$field = $convert_date( $value, 'Y-m-d' );
+				$this->$field = $convert_date( $value );
 				break;
 			case 'int':
 				$this->$field = (int) $value;
