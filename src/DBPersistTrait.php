@@ -151,7 +151,7 @@ trait DBPersistTrait
 			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
 		}
 		/** convert to DateTime type */
-		$convert_date = function (string|\DateTime|\DateTimeImmutable $value): ?\DateTime {
+		$convert_date = function (null|string|\DateTime|\DateTimeImmutable $value): ?\DateTime {
 
 			// check if value is null
 			if( null === $value ) {
