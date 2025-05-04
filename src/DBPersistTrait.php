@@ -152,6 +152,10 @@ trait DBPersistTrait
 		if( !$this->_isField( $field ) ) {
 			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
 		}
+		$convert_boolean = fn( null|bool|string $value ): ?bool =>
+			( null === filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE ) ) ?
+			throw new \InvalidArgumentException( "Invalid boolean value $value" ) :
+			(bool) filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 
 		/** convert to DateTime type */
 		$convert_date = fn( null|string|\DateTimeInterface $value ): ?\DateTime =>
@@ -172,7 +176,8 @@ trait DBPersistTrait
 			'int',
 			'unsigned' => is_int( $value ) ? (int) $value : throw new \InvalidArgumentException( "int value expected $value" ), // Handle both int and unsigned as integers
 			'float'    => is_float( $value ) ? (float) $value : throw new \InvalidArgumentException( "float value expected $value" ), // Handle both float and double as floats
-			'bool'     => is_bool( $value ) ? (bool) $value : throw new \InvalidArgumentException( "bool value expected $value" ), // Handle both bool and boolean as booleans
+			'boolean',
+			'bool'     => $convert_boolean( $value ), // Convert to boolean
 		};
 		$this->_dirty[] = $field;
 
