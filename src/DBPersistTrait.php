@@ -143,6 +143,8 @@ trait DBPersistTrait
 	 * @param  string $field
 	 * @param  mixed $value
 	 * @return void
+	 * @throws \InvalidArgumentException
+	 * @throws \DateMalformedStringException
 	 */
 	public function __set( string $field, mixed $value ): void
 	{
@@ -152,9 +154,9 @@ trait DBPersistTrait
 		}
 
 		/** convert to DateTime type */
-		$convert_date = fn( null|string|\DateTime|\DateTimeImmutable $value ): ?\DateTime =>
+		$convert_date = fn( null|string|\DateTimeInterface $value ): ?\DateTime =>
 			match ( true ) {
-				default                                                  => throw new \InvalidArgumentException( 'Invalid date value' ),
+				default                                                  => throw new \DateMalformedStringException( "Invalid date value $value" ),
 				null === $value                                          => null,
 				$value instanceof \DateTime                              => $value,
 				$value instanceof \DateTimeImmutable                     => \DateTime::createFromImmutable( $value ),
@@ -162,17 +164,18 @@ trait DBPersistTrait
 				is_string( $value )                                      => new \DateTime( $value ),
 			};
 
-		$this->$field   = match ( $this->getFields()[ $field ][0] ) {
+		$this->$field   = match ( $this->getFields()[$field][ 0 ] ) {
 			default    => $value, // Default case
 			'\DateTime',
 			'DateTime',
 			'Date'     => $convert_date( $value ),
 			'int',
-			'unsigned' => (int) $value, // Handle both int and unsigned as integers
-			'float'    => (float) $value,
-			'bool'     => (bool) $value,
+			'unsigned' => is_int( $value ) ? (int) $value : throw new \InvalidArgumentException( "int value expected $value" ), // Handle both int and unsigned as integers
+			'float'    => is_float( $value ) ? (float) $value : throw new \InvalidArgumentException( "float value expected $value" ), // Handle both float and double as floats
+			'bool'     => is_bool( $value ) ? (bool) $value : throw new \InvalidArgumentException( "bool value expected $value" ), // Handle both bool and boolean as booleans
 		};
 		$this->_dirty[] = $field;
+
 	}
 
 	// MARK: construction
@@ -224,13 +227,13 @@ trait DBPersistTrait
 				throw DatabaseException::createStatementException( Database::getConnection(), "Could not prepare for {$this->getTableName()}:%s)" );
 			}
 
-			if( !$stmt->execute( [ ':ID' => $id ] ) ) {
+			if( !$stmt->execute( [':ID' => $id] ) ) {
 				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this->getTableName()}:%s)" );
 			}
 
 			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
 			if( $stmt->fetch() ) {
-				switch( $this->getFields()[ $this->getPrimaryKey()][0] ) {
+				switch( $this->getFields()[$this->getPrimaryKey()][ 0 ] ) {
 					case 'int':
 						$this->{$this->getPrimaryKey()} = (int) $id;
 						break;
@@ -252,7 +255,7 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[2]
+				$errorInfo[ 2 ]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
@@ -415,7 +418,7 @@ trait DBPersistTrait
 			$message   = sprintf(
 				'Error finding %s, (%s)',
 				$this->getTableName(),
-				$errorInfo[2]
+				$errorInfo[ 2 ]
 			);
 			throw new DatabaseException( DatabaseException::ERR_STATEMENT, $e, $message );
 		}
@@ -522,7 +525,7 @@ trait DBPersistTrait
 	 */
 	private function getWhere(): string
 	{
-		$where = [ '0=0' ]; // do nothing
+		$where = ['0=0']; // do nothing
 		foreach( $this->_where as $fieldname => $filter ) {
 			if( strstr( '=!*<>&|^~', substr( $filter, 0, 1 ) ) ) {
 				$operator = substr( $filter, 0, 1 );
@@ -589,7 +592,7 @@ trait DBPersistTrait
 			if( substr( $filter, 0, 1 ) === '~' ) {
 				$in_values = explode( ',', substr( $filter, 1 ) );
 				for( $i = 0; $i < count( $in_values ); $i++ ) {
-					$result = $result && $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[ $i ] );
+					$result = $result && $stmt->bindValue( ":{$fieldname}_{$i}", $in_values[$i] );
 				}
 			} else {
 				$result = $result && $stmt->bindValue( ":$fieldname", $this->getFieldString( $fieldname ) );
