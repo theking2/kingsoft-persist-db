@@ -15,13 +15,18 @@ trait DBPersistTrait
 	}
 
 	// MARK: Field conversion
+
+  /**
+   * set timezone - set the timezone for the DateTime fields
+   */
+  protected static \DateTimeZone $timezone = new \DateTimeZone( date_default_timezone_get() );
 	/** 
 	 * wrapFieldArray - wrap field names in backticks and precede with table name
 	 *
 	 * @param  array $fields
 	 * @return string
 	 */
-	static private function wrapFieldArray( array $fields ): string
+	private static function wrapFieldArray( array $fields ): string
 	{
 		return static::getTableName() . '.`' . implode( '`, ' . self::getTableName() . '.`', $fields ) . '`';
 	}
@@ -162,10 +167,12 @@ trait DBPersistTrait
 			match ( true ) {
 				default                                                  => throw new \DateMalformedStringException( "Invalid date value $value" ),
 				null === $value                                          => null,
-				$value instanceof \DateTime                              => $value,
-				$value instanceof \DateTimeImmutable                     => \DateTime::createFromImmutable( $value ),
+				$value instanceof \DateTime                              => $value->setTimezone( self::$timezone ),
+				$value instanceof \DateTimeImmutable                     => (\DateTime::createFromImmutable( $value ))->setTimezone( self::$timezone ),
+        // 0000-00-00 00:00:00 is a special case for MySQL, we convert it to null
+        // MARK: make this configurable in the future
 				is_string( $value ) and $value === '0000-00-00 00:00:00' => null,
-				is_string( $value )                                      => new \DateTime( $value ),
+				is_string( $value )                                      => (new \DateTime( $value ))->setTimezone( self::$timezone ),
 			};
 
 		$this->$field   = match ( $this->getFields()[$field][ 0 ] ) {
