@@ -19,7 +19,7 @@ trait DBPersistTrait
   /**
    * set timezone - set the timezone for the DateTime fields
    */
-  protected \DateTimeZone $timezone = new \DateTimeZone( date_default_timezone_get() );
+  protected \DateTimeZone $timezone;
 	/** 
 	 * wrapFieldArray - wrap field names in backticks and precede with table name
 	 *
@@ -157,6 +157,8 @@ trait DBPersistTrait
 		if( !$this->_isField( $field ) ) {
 			throw new \InvalidArgumentException( sprintf( 'Field %s does not exist in %s', $field, $this->getTableName() ) );
 		}
+
+    $this->timezone ??= new \DateTimeZone( date_default_timezone_get() );
 		$convert_boolean = fn( null|bool|string $value ): ?bool =>
 			( null === filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE ) ) ?
 			throw new \InvalidArgumentException( "Invalid boolean value $value" ) :
