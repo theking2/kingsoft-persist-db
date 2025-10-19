@@ -127,7 +127,13 @@ final class Bootstrap
 		fwrite( $fh, "<?php declare(strict_types=1);\n" );
 		fprintf( $fh, "namespace %s;\n\n", $this->phpNamespace );
 		fprintf( $fh, "/**\n * Persistant DB object for table – %s\n", $table_name );
-
+		if( !isset( $keyname ) ) {
+			fwrite( $fh, " *\n * WARNING: This table/view has no primary key defined.\n" );
+			fwrite( $fh, " * Limited functionality: Cannot use thaw(), update(), delete(), or freeze() for existing records.\n" );
+			fwrite( $fh, " * Only read operations (findAll, find, findFirst, findNext) are supported.\n" );
+			fwrite( $fh, " * For tables: Consider adding a primary key to the schema.\n" );
+			fwrite( $fh, " * For views: Use only for read-only operations.\n" );
+		}
 		fwrite( $fh, " */\n" );
 
 		fprintf( $fh, "final class %s\n", $class_name );
@@ -178,7 +184,14 @@ final class Bootstrap
 				}
 			}
 		} else {
-			// No primary key, so we need to override the default
+			// No primary key found in table/view
+			// Objects without primary keys have limited functionality:
+			// - Cannot use thaw() to load by ID
+			// - Cannot use update() to modify records
+			// - Cannot use delete() to remove records
+			// - Can only use findAll(), find(), findFirst(), findNext() for read operations
+			// For tables: Consider adding a primary key to the schema
+			// For views: Use only for read-only operations
 			fprintf( $fh, "\tpublic static function getPrimaryKey():string { return ''; }\n" );
 			fprintf( $fh, "\tpublic static function isPrimaryKeyAutoIncrement():bool { return false; }\n" );
 		}
