@@ -26,6 +26,7 @@ final class Bootstrap
 	private readonly string $classFolder;
 	private \PDO            $db;
 	protected array         $all_tables;
+	private int             $inheritedPermissions;
 	// MARK: - Initializer
 	public function __construct(
 		readonly string $namespace,
@@ -38,9 +39,17 @@ final class Bootstrap
 	// MARK: - Discovery
 	public function discover()
 	{
-		$this->classFolder = str_replace( '\\', '/', ROOT . 'discovered/' . $this->phpNamespace . '/' );
+		$classFolderRoot = str_replace( '\\', '/', ROOT . 'discovered/' );
+		$this->classFolder = $classFolderRoot . $this->phpNamespace . '/';
+		
+		// Get permissions from the root folder to inherit
+		$this->inheritedPermissions = 0755; // Default fallback
+		if( is_dir( $classFolderRoot ) ) {
+			$this->inheritedPermissions = fileperms( $classFolderRoot ) & 0777;
+		}
+		
 		if( !is_dir( $this->classFolder ) )
-			mkdir( $this->classFolder, 0755, true );
+			mkdir( $this->classFolder, $this->inheritedPermissions, true );
 
 		$this->db = \Kingsoft\Db\Database::getConnection();
 
@@ -108,6 +117,8 @@ final class Bootstrap
 		}
 		echo '</ul>';
 		$fh = fopen( $file_name, 'w' );
+		// Set file permissions to match the parent folder
+		chmod( $file_name, $this->inheritedPermissions );
 		//$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
 		fwrite( $fh, "<?php declare(strict_types=1);\n" );
 		fprintf( $fh, "namespace %s;\n\n", $this->phpNamespace );
