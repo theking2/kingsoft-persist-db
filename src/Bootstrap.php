@@ -38,19 +38,16 @@ final class Bootstrap
 		$this->phpNamespace  = implode( '\\', $parts );
 		
 		// Set classFolder using classFolderRoot parameter or ROOT constant
-		$root = $this->classFolderRoot ?: ( defined('ROOT') ? ROOT : '' );
+		$root = $this->classFolderRoot;
 		$this->classFolder = str_replace( '\\', '/', $root . 'discovered/' . $this->phpNamespace . '/' );
 	}
 	// MARK: - Discovery
 	public function discover()
 	{
-		$classFolderRoot = str_replace( '\\', '/', ROOT . 'discovered/' );
-		$this->classFolder = $classFolderRoot . $this->phpNamespace . '/';
-		
 		// Get permissions from the root folder to inherit
 		$this->inheritedPermissions = 0755; // Default fallback
-		if( is_dir( $classFolderRoot ) ) {
-			$this->inheritedPermissions = fileperms( $classFolderRoot ) & 0777;
+		if( is_dir( $this->classFolderRoot ) ) {
+			$this->inheritedPermissions = fileperms( $this->classFolderRoot ) & 0777;
 		}
 		
 		if( !is_dir( $this->classFolder ) )
