@@ -169,6 +169,15 @@ array_walk( $all_tables, function ($table_name) {
 } );
 echo '</pre>';
 echo '<hr>';
+echo '<h2>Settings [api] - PHP format</h2>';
+echo '<pre>';
+echo "'allowedendpoints' => [" . PHP_EOL;
+array_walk( $all_tables, function ($table_name) {
+  echo "    '" . $table_name . "'," . PHP_EOL;
+} );
+echo "]";
+echo '</pre>';
+echo '<hr>';
 echo '<h2>composer.json</h2>';
 echo '<pre>';
 echo ',
