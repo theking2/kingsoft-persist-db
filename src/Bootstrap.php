@@ -30,11 +30,16 @@ final class Bootstrap
 	// MARK: - Initializer
 	public function __construct(
 		readonly string $namespace,
+		readonly string $classFolderRoot = '',
 	) {
 		$configuredNamespace = str_replace( '\\', '/', $this->namespace );
 		$parts               = explode( '/', $configuredNamespace );
 		$parts               = array_map( 'ucfirst', $parts );
 		$this->phpNamespace  = implode( '\\', $parts );
+		
+		// Set classFolder using classFolderRoot parameter or ROOT constant
+		$root = $this->classFolderRoot ?: ( defined('ROOT') ? ROOT : '' );
+		$this->classFolder = str_replace( '\\', '/', $root . 'discovered/' . $this->phpNamespace . '/' );
 	}
 	// MARK: - Discovery
 	public function discover()
