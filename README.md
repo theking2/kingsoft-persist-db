@@ -13,6 +13,13 @@ require_once 'config.php';
 require 'vendor/autoload.php';
 
 use \Kingsoft\Persist\Db\Bootstrap;
+$bootstrap = new Bootstrap( 'Realm\Namespace', ROOT );
+$bootstrap->discover();
+```
+
+Or if you don't pass `classFolderRoot`, it will use the `ROOT` constant if defined:
+
+```php
 $bootstrap = new Bootstrap( 'Realm\Namespace' );
 $bootstrap->discover();
 ```
@@ -75,7 +82,7 @@ require_once 'config.php';
 require 'vendor/autoload.php';
 
 use \Kingsoft\Persist\Db\Bootstrap;
-$bootstrap = new Bootstrap( 'Kingsoft\LinkQr' );
+$bootstrap = new Bootstrap( 'Kingsoft\LinkQr', ROOT );
 $bootstrap->document( 
     ROOT.'doc-header.html', 
     ROOT.'doc-footer.html'
