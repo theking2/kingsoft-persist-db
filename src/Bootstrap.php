@@ -18,7 +18,7 @@ final class Bootstrap
 			'string'    => [ 'char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'decimal', 'binary', 'varbinary', 'enum' ],
 			'bool'      => [ 'bool', 'boolean' ],
 			'Date'      => [ 'date' ],
-			'\DateTime' => [ 'datetime' ],
+			'\DateTime' => [ 'datetime', 'timestamp' ],
 		//	'set'       => [ 'set' ]
 		];
 	// MARK: - Properties
