@@ -11,8 +11,15 @@ if( !defined( '_NAMESPACE' ) ) {
 }
 
 define( 'DISCOVERED_CLASSFOLDER', str_replace( '\\', '/', ROOT . 'discovered/' . _NAMESPACE . '/' ) );
-if( !is_dir( DISCOVERED_CLASSFOLDER ) )
-  mkdir( DISCOVERED_CLASSFOLDER, 0755, true );
+if( !is_dir( DISCOVERED_CLASSFOLDER ) ) {
+  // Get permissions from the root folder to inherit
+  $classFolderRoot = str_replace( '\\', '/', ROOT . 'discovered/' );
+  $inheritedPermissions = 0755; // Default fallback
+  if( is_dir( $classFolderRoot ) ) {
+    $inheritedPermissions = fileperms( $classFolderRoot ) & 0777;
+  }
+  mkdir( DISCOVERED_CLASSFOLDER, $inheritedPermissions, true );
+}
 
 use \Kingsoft\Utils\Html as Html;
 use \Kingsoft\Utils\Format as Format;
