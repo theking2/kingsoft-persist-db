@@ -39,7 +39,9 @@ final class Bootstrap
 		
 		// Set classFolder using classFolderRoot parameter or ROOT constant
 		$root = $this->classFolderRoot;
-		$this->classFolder = str_replace( '\\', '/', $root . 'discovered/' . $this->phpNamespace . '/' );
+		$this->classFolder = str_replace( '\\', '/',
+			$this->classFolderRoot . '/' . $this->phpNamespace . '/'
+		);
 	}
 	// MARK: - Discovery
 	public function discover()
