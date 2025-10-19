@@ -62,6 +62,66 @@ This will create a folder `discovered/Realm/Namespace` in the root with subfolde
 
 Views are created but not updatable. Also as PK cannot be established these are commented out. Make sure to copy and adapt the create classfiles.
 
+## Handling Missing Primary Keys
+
+### Tables and Views Without Primary Keys
+
+When working with tables or views that don't have a primary key defined, the `discover()` process will generate classes with the following default implementations:
+
+```php
+public static function getPrimaryKey():string { return ''; }
+public static function isPrimaryKeyAutoIncrement():bool { return false; }
+```
+
+### Limitations
+
+Objects generated from tables/views without primary keys have **significant limitations**:
+
+1. **No `thaw()` operation**: You cannot load individual records by ID since there's no primary key to identify them
+2. **No `update()` operation**: Updates require a primary key to identify which record to modify
+3. **No `delete()` operation**: Deletions require a primary key to identify which record to remove
+4. **No `freeze()` for existing records**: Only inserting new records may work if the table structure allows it
+
+### What Still Works
+
+Even without a primary key, you can still use:
+
+- **`findAll()`**: Retrieve all records matching specific criteria using `where` clauses
+- **`find()`**: Find the first record matching specific criteria
+- **Iterator operations**: Use `findFirst()` and `findNext()` to traverse result sets
+
+### Recommended Approach
+
+For **views** without primary keys:
+1. Use the generated class as-is for **read-only operations** (`findAll()`, `find()`)
+2. Do not attempt CRUD operations that require a primary key
+
+For **tables** without primary keys:
+1. **Best practice**: Add a primary key to your table schema
+2. If you cannot modify the schema, manually edit the generated class to define a unique field combination as the primary key:
+   ```php
+   public static function getPrimaryKey():string { return 'your_unique_field'; }
+   ```
+3. Ensure the field you choose uniquely identifies each record
+
+### Example: Working with Views
+
+```php
+// This works - reading all records from a view
+foreach( ViewName::findAll() as $record ) {
+    echo $record->field_name;
+}
+
+// This works - finding specific records
+$record = ViewName::find(['field' => '=value']);
+
+// This will NOT work - views don't support updates
+// $record->freeze(); // Don't do this!
+
+// This will NOT work - no primary key to identify records
+// $record = new ViewName(123); // Don't do this!
+```
+
 ## Composer file section
 
 To have the proxies autoloaded add the psr-4 section to your `composer.json`and run 
