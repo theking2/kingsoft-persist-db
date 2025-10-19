@@ -48,7 +48,8 @@ $table_stat->execute();
 $table_stat->bindColumn( 1, $table_name );
 
 $all_tables = [];
-$url        = "http://" . $_SERVER[ 'HTTP_HOST' ];
+$scheme     = $_SERVER[ 'REQUEST_SCHEME' ] ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
+$url        = $scheme . "://" . $_SERVER[ 'HTTP_HOST' ];
 
 echo Format::load_parse_file( 'doc-header.html', [ 'apiUrl' => $url ] );
 echo Html::wrap_tag( 'h1', "Endpoints" );
