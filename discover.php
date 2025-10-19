@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 require_once '../config.php';
 
+// Set umask to ensure proper file permissions (0644 for files, 0755 for directories)
+umask( 0022 );
+
 if( !defined( '_NAMESPACE' ) ) {
   $configuredNamespace = str_replace( '\\', '/', SETTINGS['api']['namespace'] );
   $parts               = explode( '/', $configuredNamespace );
@@ -95,6 +98,7 @@ function doTable( $table_name )
   $fh = fopen( $file_name, 'w' );
   //$cols = "'" . implode( "',\n\t\t\t'", $cols ) . "'";
   fwrite( $fh, "<?php declare(strict_types=1);\n" );
+  fprintf( $fh, "/**\n * Generated: %s\n */\n", date( 'Y-m-d H:i:s' ) );
   fprintf( $fh, "namespace %s;\n\n", _NAMESPACE );
   fprintf( $fh, "/**\n * Persistant DB object for table – %s\n", $table_name );
 
