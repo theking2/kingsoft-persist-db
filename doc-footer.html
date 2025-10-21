@@ -59,7 +59,7 @@
   <dd>Vorhandenen Eintrag für Endpunkt aktualisieren. Der mit ID angegebene Resource wird aktualisiert. Als Payload ein Object mit Properties.
     <pre><code>
       async function put(id, payload) {
-        const url = '$apiUrl/endpoint' + id;
+        const url = '$apiUrl/endpoint/' + id;
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -81,7 +81,7 @@
   <dd>Vorhandenen Eintrag für Endpunkt entfernen. Das mit ID angegebene Objekt wird entfernt.
     <pre><code>
       async function delete(id) {
-        const url = '$apiUrl/endpoint' + id;
+        const url = '$apiUrl/endpoint/' + id;
         const response = await fetch(url,
           {
             method: 'DELETE'
