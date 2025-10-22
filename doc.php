@@ -117,9 +117,19 @@ function doTable( string $table_name, string $url )
   }
   echo '<dd>';
   echo Html::wrap_tag( 'p', "key: " . ( $keyname ?? 'none' ) . " is auto increment: " . ( $hasAutoIncrement ? 'ja' : 'nein' ) );
-  echo Html::wrap_tag( 'p', "Fields:" );
+  echo Html::wrap_tag( 'p', "Collection response (GET " . $url . "):" );
   echo '<pre>';
   printf( "%s: {\n", Format::snakeToCamel( $table_name ) );
+  foreach( $cols as $fieldName => $fieldDescription ) {
+    $width = 20 - mb_strlen( $fieldName );
+    if( ( $fieldName === $keyname ) && $hasAutoIncrement )
+      continue;
+    printf( "\t%s: %-{$width}s // type: %s\n", $fieldName, $fieldDescription[ 0 ] == 'int' ? "0," : '"",', $fieldDescription[ 0 ] );
+  }
+  echo '}</pre>';
+  echo Html::wrap_tag( 'p', "Single resource response (GET " . $url . "/{id}):" );
+  echo '<pre>';
+  echo "{\n";
   foreach( $cols as $fieldName => $fieldDescription ) {
     $width = 20 - mb_strlen( $fieldName );
     if( ( $fieldName === $keyname ) && $hasAutoIncrement )
