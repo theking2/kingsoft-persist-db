@@ -167,14 +167,15 @@ trait DBPersistTrait
 		/** convert to DateTime type */
 		$convert_date = fn( null|string|\DateTimeInterface $value ): ?\DateTime =>
 			match ( true ) {
-				default                                                  => throw new \DateMalformedStringException( "Invalid date value $value" ),
-				null === $value                                          => null,
-				$value instanceof \DateTime                              => $value->setTimezone( $this->timezone ),
-				$value instanceof \DateTimeImmutable                     => (\DateTime::createFromImmutable( $value ))->setTimezone( $this->timezone ),
+				$value === null                       => null,
+				$value instanceof \DateTime           => (clone $value)->setTimezone( $this->timezone ),
+                $value instanceof \DateTimeImmutable  => \DateTime::createFromImmutable( $value)->setTimezone($this->timezone),
+				$value instanceof \DateTimeInterface  => (new \DateTime( $value->format( \DateTimeInterface::ATOM ), $this->timezone )),
+				$value === '0000-00-00 00:00:00'      => null,
+				is_string( $value )                   => (new \DateTime( $value ))->setTimezone( $this->timezone ),
         // 0000-00-00 00:00:00 is a special case for MySQL, we convert it to null
         // MARK: make this configurable in the future
-				is_string( $value ) and $value === '0000-00-00 00:00:00' => null,
-				is_string( $value )                                      => (new \DateTime( $value ))->setTimezone( $this->timezone ),
+				default                               => throw new \LogicException( 'Unreachable in convert_date: ' . get_debug_type($value) ),
 			};
 
 		$this->$field   = match ( $this->getFields()[$field][ 0 ] ) {
