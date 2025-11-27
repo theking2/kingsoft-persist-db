@@ -100,9 +100,18 @@ final class Bootstrap
 				$hasAutoIncrement = $fieldExtra === 'auto_increment';
 			}
 			preg_match( $type_pattern, $fieldType, $desc );
+
+			$baseType = $desc[1] ?? '';
+			$length   = $desc[3] ?? 0;
+			$extra    = $desc[5] ?? '';
+
+    		// default: unknown types -> string, keep raw type info
+    		$cols[$fieldName] = [ 'string', $length, $extra, $fieldType ];
+	
 			foreach( Bootstrap::TYPELIST as $php_type => $db_types ) {
-				if( in_array( $desc[ 1 ], $db_types ) ) {
-					$cols[ $fieldName ] = [ $php_type, $desc[ 3 ] ?? 0, $desc[ 5 ] ?? '' ];
+				if( in_array( $baseType, $db_types, true ) ) {
+					$cols[ $fieldName ][0] = $php_type;
+
 					if( $php_type === 'set' ) {
 						$hasSet                  = true;
 						$cols[ $fieldName ][ 2 ] = explode( ",", mb_substr( $fieldType, 4, -1 ) ); // remove 'set(' and ')'
