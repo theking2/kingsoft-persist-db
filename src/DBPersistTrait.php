@@ -184,8 +184,8 @@ trait DBPersistTrait
 			'DateTime',
 			'Date'     => $convert_date( $value ),
 			'int',
-			'unsigned' => (int) $value, //is_int( $value ) ? (int) $value : throw new \InvalidArgumentException( "int value expected $value" ), // Handle both int and unsigned as integers
-			'float'    => (float) $value, //is_float( $value ) ? (float) $value : throw new \InvalidArgumentException( "float value expected $value" ), // Handle both float and double as floats
+			'unsigned' => null === $value ? null : (int) $value,
+			'float'    => null === $value ? null : (float) $value,
 			'boolean',
 			'bool'     => $convert_boolean( $value ), // Convert to boolean
 		};
