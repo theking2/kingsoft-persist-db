@@ -165,7 +165,7 @@ final class Bootstrap
 		}
 		// Set the datatype for Date and DateTime to PHP \DateTime
 		foreach( $cols as $fieldName => $fieldDescription ) {
-			fprintf( $fh, "\tprotected ?%-10s\$%s;\n",
+			fprintf( $fh, "\tprotected ?%-10s\$%s = null;\n",
 				match ( $fieldDescription[0] ) {
 					'Date'  => '\DateTime',
 					'set'   => 'int',

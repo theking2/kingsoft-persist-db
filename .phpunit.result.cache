@@ -1,0 +1,1 @@
+{"version":2,"defects":{"PersistDbTest::testPersistDb":8},"times":{"PersistDbTest::testPersistDb":0.01,"BootstrapTest::testConstructorNormalizesNamespace":0.003,"BootstrapTest::testNullablePropertyFormatIncludesNullDefault":0}}
