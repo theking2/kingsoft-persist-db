@@ -246,7 +246,7 @@ trait DBPersistTrait
 				throw DatabaseException::createExecutionException( $stmt, "Could not execute for {$this->getTableName()}:%s)" );
 			}
 
-			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
+			$stmt->setFetchMode( \PDO::FETCH_INTO, $this );
 			if( $stmt->fetch() ) {
 				switch( $this->getFields()[$this->getPrimaryKey()][ 0 ] ) {
 					case 'int':
@@ -420,7 +420,7 @@ trait DBPersistTrait
 				throw DatabaseException::createExecutionException( $stmt, "Could not execute statement for {$this->getTableName()}:%s" );
 			}
 
-			$stmt->setFetchMode( \PDO::FETCH_INTO | \PDO::FETCH_PROPS_LATE, $this );
+			$stmt->setFetchMode( \PDO::FETCH_INTO, $this );
 			if( $stmt->fetch() ) {
 				$this->current_statement = $stmt;
 				$this->_valid            = true;
