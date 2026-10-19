@@ -359,7 +359,7 @@ trait DBPersistTrait
 
 		} catch ( \PDOException $e ) {
 			throw DatabaseException::createExecutionException(
-				$this->delete_statement, "Could not delete from {self->getTableName()}:%s"
+				$this->delete_statement, "Could not delete from {$this->getTableName()}:%s"
 			);
 		}
 	}
